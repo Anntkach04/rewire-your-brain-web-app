@@ -182,15 +182,6 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             }}
             transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
           />
-          <ellipse
-            cx={0}
-            cy={0}
-            rx={44}
-            ry={40}
-            fill="none"
-            stroke="rgba(255,255,255,0.55)"
-            strokeWidth="0.85"
-          />
 
           <text
             x={0}
