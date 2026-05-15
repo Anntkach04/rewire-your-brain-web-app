@@ -26,11 +26,15 @@ const BLOB_RADIUS = [
   "42% 58% 63% 37% / 47% 41% 59% 53%",
 ] as const;
 
+const BLOB_SCALE = 1.25;
+const BLOB_BOX = 88 * BLOB_SCALE;
+const BLOB_CORE = 62 * BLOB_SCALE;
+
 /** Organic center blob — morphing shapes, centered at SVG origin */
 function CenterBlob() {
-  const box = 88;
+  const box = BLOB_BOX;
   const half = box / 2;
-  const core = 62;
+  const core = BLOB_CORE;
 
   return (
     <foreignObject x={-half} y={-half} width={box} height={box} overflow="visible">
@@ -263,13 +267,13 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
           <motion.ellipse
             cx={0}
             cy={0}
-            rx={56}
-            ry={54}
+            rx={56 * BLOB_SCALE}
+            ry={54 * BLOB_SCALE}
             fill="url(#rewire-glow-pulse-grad)"
             animate={{
               opacity: [0.35, 0.7, 0.4, 0.65, 0.35],
-              rx: [52, 60, 48, 58, 52],
-              ry: [56, 48, 58, 50, 56],
+              rx: [52, 60, 48, 58, 52].map((v) => v * BLOB_SCALE),
+              ry: [56, 48, 58, 50, 56].map((v) => v * BLOB_SCALE),
             }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
