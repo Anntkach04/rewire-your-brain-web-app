@@ -17,59 +17,30 @@ const NODE_SPOTS = [
   { x: -R, y: 0, key: "l", pulseDelay: 3.3 },
 ] as const;
 
-const BLOB_RADIUS = [
-  "42% 58% 63% 37% / 47% 41% 59% 53%",
-  "58% 42% 35% 65% / 54% 48% 52% 46%",
-  "48% 52% 62% 38% / 43% 57% 43% 57%",
-  "55% 45% 40% 60% / 52% 38% 62% 48%",
-  "38% 62% 55% 45% / 60% 44% 56% 40%",
-  "42% 58% 63% 37% / 47% 41% 59% 53%",
-] as const;
-
 const BLOB_SCALE = 1.25 * 1.2;
-const BLOB_CORE = Math.round(62 * BLOB_SCALE);
-
-/** HTML blob — avoids iOS Safari foreignObject offset + pink blur spill */
-function CenterBlob() {
-  return (
-    <motion.div
-      className="pointer-events-none"
-      style={{
-        width: BLOB_CORE,
-        height: BLOB_CORE,
-        borderRadius: BLOB_RADIUS[0],
-        background:
-          "radial-gradient(at 30% 28%, #FFF9EE 0%, #FBD2B7 48%, #F3E4D4 82%, #EBE4F2 100%)",
-      }}
-      animate={{
-        rotate: [0, 12, -9, 6, -4, 0],
-        scale: [1, 1.05, 0.96, 1.03, 0.98, 1],
-        borderRadius: [...BLOB_RADIUS],
-      }}
-      transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-    />
-  );
-}
+const BLOB_R = (62 * BLOB_SCALE) / 2;
 
 export function RewireCycleDiagram({ className = "" }: { className?: string }) {
   return (
     <motion.div
-      className={`relative mx-auto aspect-square w-[min(58vw,320px)] shrink-0 ${className}`}
+      className={`mx-auto w-[min(58vw,320px)] shrink-0 ${className}`}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       aria-hidden
     >
-      <motion.div
-        className="absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2"
-        animate={{ scale: [1, 1.02, 1] }}
-        transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
+      <svg
+        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        className="block h-auto w-full"
+        overflow="visible"
       >
-        <CenterBlob />
-      </motion.div>
-
-      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="relative z-10 h-full w-full" overflow="visible">
         <defs>
+          <radialGradient id="rewire-blob-grad" cx="32%" cy="30%" r="68%">
+            <stop offset="0%" stopColor="#FFF9EE" />
+            <stop offset="48%" stopColor="#FBD2B7" />
+            <stop offset="82%" stopColor="#F3E4D4" />
+            <stop offset="100%" stopColor="#EBE4F2" />
+          </radialGradient>
           <linearGradient id="rewire-ring-violet" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="rgba(232,214,255,0.95)" />
             <stop offset="50%" stopColor="rgba(210,190,245,0.88)" />
@@ -159,6 +130,20 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
               }}
             />
           ))}
+
+          {/* Blob: cx/cy = 0 — exact center of ring */}
+          <motion.ellipse
+            cx={0}
+            cy={0}
+            fill="url(#rewire-blob-grad)"
+            style={{ transformOrigin: "0px 0px" }}
+            animate={{
+              rx: [BLOB_R * 0.96, BLOB_R * 1.06, BLOB_R * 0.94, BLOB_R * 1.03, BLOB_R],
+              ry: [BLOB_R * 1.04, BLOB_R * 0.92, BLOB_R * 1.05, BLOB_R * 0.97, BLOB_R],
+              rotate: [0, 10, -8, 5, 0],
+            }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          />
 
           <text
             x={0}
