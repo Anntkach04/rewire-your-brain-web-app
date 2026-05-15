@@ -1,0 +1,347 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root,
+  button,
+  input,
+  textarea,
+  select {
+    font-family: "Instrument Serif", ui-serif, Georgia, serif;
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: "Instrument Serif", ui-serif, Georgia, serif;
+}
+
+body {
+  margin: 0;
+  font-family: "Instrument Serif", ui-serif, Georgia, serif;
+  color: #202020;
+  background: #fbf1e2;
+  overflow-x: hidden;
+  min-height: 100dvh;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(92, 70, 50, 0.18);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Selection */
+::selection {
+  background: #fbd2b7;
+  color: #202020;
+}
+
+/* Seamless background motion: ping-pong transform so 0% === loop boundary */
+@keyframes app-bg-breathe {
+  from {
+    transform: scale(1.04) translate3d(0%, 0%, 0);
+  }
+  to {
+    transform: scale(1.1) translate3d(0.9%, -0.55%, 0);
+  }
+}
+
+@keyframes app-bg-glowspin {
+  from {
+    transform: rotate(0deg) scale(1.15);
+  }
+  to {
+    transform: rotate(360deg) scale(1.15);
+  }
+}
+
+@layer components {
+  .app-bg-photo {
+    transform-origin: 50% 42%;
+    animation: app-bg-breathe 32s ease-in-out infinite alternate;
+  }
+
+  .app-bg-photo video {
+    display: block;
+    min-height: 100%;
+    min-width: 100%;
+  }
+
+  .app-bg-glowspin {
+    animation: app-bg-glowspin 240s linear infinite;
+  }
+
+  .glass-card {
+    @apply relative rounded-[28px] overflow-hidden;
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.55) 0%,
+        rgba(255, 255, 255, 0.18) 35%,
+        rgba(255, 200, 210, 0.08) 50%,
+        rgba(210, 220, 255, 0.08) 58%,
+        rgba(255, 255, 255, 0) 65%
+      ),
+      rgba(255, 255, 255, 0.26);
+    -webkit-backdrop-filter: blur(12px) saturate(1.08);
+    backdrop-filter: blur(12px) saturate(1.08);
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.16),
+      0 10px 36px rgba(0, 0, 0, 0.06);
+  }
+
+  /*
+   * Glass surfaces — lighter blur so background stays readable (was 37px).
+   */
+  .glass-field,
+  .btn-primary-glass,
+  .btn-primary,
+  .btn-ghost,
+  .glass-icon-btn {
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.55) 0%,
+        rgba(255, 255, 255, 0.18) 35%,
+        rgba(255, 200, 210, 0.08) 50%,
+        rgba(210, 220, 255, 0.08) 58%,
+        rgba(255, 255, 255, 0) 65%
+      ),
+      rgba(255, 255, 255, 0.26);
+    -webkit-backdrop-filter: blur(12px) saturate(1.08);
+    backdrop-filter: blur(12px) saturate(1.08);
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.16),
+      0 8px 28px rgba(0, 0, 0, 0.06);
+  }
+
+  .glass-field {
+    @apply relative overflow-hidden;
+  }
+
+  /* Feeling chips & small pill controls — same lighter glass as fields */
+  .glass-chip {
+    position: relative;
+    overflow: hidden;
+    border-radius: 9999px;
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.14) 40%,
+        rgba(255, 255, 255, 0) 62%
+      ),
+      rgba(255, 255, 255, 0.24);
+    -webkit-backdrop-filter: blur(12px) saturate(1.08);
+    backdrop-filter: blur(12px) saturate(1.08);
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.65),
+      0 4px 16px rgba(0, 0, 0, 0.05);
+  }
+
+  .glass-icon-btn {
+    @apply grid h-9 w-9 place-items-center rounded-full text-[#202020] transition-opacity disabled:opacity-0;
+  }
+
+  .placeholder-ink-soft {
+    @apply w-full min-w-0 text-left;
+  }
+
+  .placeholder-ink-soft::placeholder {
+    font-family: "Instrument Serif", ui-serif, serif;
+    color: #202020;
+    opacity: 1;
+    text-align: left;
+    white-space: pre-wrap;
+  }
+
+  .btn-primary-glass {
+    @apply relative inline-flex h-[55px] w-full max-w-none shrink-0 items-center justify-center rounded-[14px] px-7 py-0 text-[24px] font-normal leading-none text-[#202020] transition-transform active:scale-[0.98] disabled:cursor-not-allowed;
+    isolation: isolate;
+  }
+
+  /* Disabled: dim the glass only — label stays full-opacity (#202020) */
+  .btn-primary-glass:disabled::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+  }
+
+  /* Label above glass + disabled veil; solid ink (Safari can wash text on backdrop-filter parents) */
+  .btn-primary-glass__label {
+    @apply relative text-[24px];
+    z-index: 2;
+    font-family: "Instrument Serif", ui-serif, serif;
+    color: #202020;
+    -webkit-text-fill-color: #202020;
+    opacity: 1;
+    mix-blend-mode: normal;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-white/45 px-3 py-1 text-[11px] font-normal tracking-[0.04em] normal-case text-[#202020] bg-white/25;
+    -webkit-backdrop-filter: blur(12px) saturate(1.08);
+    backdrop-filter: blur(12px) saturate(1.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  }
+
+  .step-label {
+    @apply w-full max-w-none text-center text-[16px] font-normal tracking-normal lowercase text-[#202020];
+  }
+
+  .heading {
+    @apply font-display w-full max-w-none text-center text-balance text-[2rem] font-normal leading-[1.08] text-[#202020] tracking-[-0.01em];
+  }
+
+  .heading-lg {
+    @apply font-display w-full max-w-none text-center text-balance text-[2.4rem] font-normal leading-[1.05] text-[#202020] tracking-[-0.015em];
+  }
+
+  .subtle {
+    @apply font-display text-[15px] font-normal leading-relaxed text-[#202020];
+  }
+
+  .btn-primary {
+    @apply relative inline-flex h-[55px] w-full max-w-none shrink-0 items-center justify-center gap-2 rounded-[14px] px-7 py-0 text-[24px] font-normal leading-none text-[#202020]
+           transition-transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-[14px] px-5 py-3 text-[14px] font-medium text-[#202020]
+           transition-colors hover:text-[#202020];
+  }
+
+  .btn-ghost:hover {
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.14) 40%,
+        rgba(255, 255, 255, 0) 60%
+      ),
+      rgba(255, 255, 255, 0.28);
+    -webkit-backdrop-filter: blur(12px) saturate(1.08);
+    backdrop-filter: blur(12px) saturate(1.08);
+  }
+
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.36  0 0 0 0 0.28  0 0 0 0 0.2  0 0 0 0.22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.05;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent);
+    mask-image: linear-gradient(to bottom, black 75%, transparent);
+  }
+}
+
+/* Reduce motion fallback */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .app-bg-photo {
+    transform: scale(1.06) translate3d(0, 0, 0) !important;
+  }
+
+  .app-bg-glowspin {
+    transform: rotate(0deg) scale(1.15) !important;
+  }
+}
+
+/*
+ * Force one stack app-wide: local + Google both register "Instrument Serif".
+ * inherit on descendants beats stray UA/Tailwind resets; forms get an extra explicit rule.
+ */
+#root {
+  font-family: "Instrument Serif", ui-serif, Georgia, serif !important;
+  color: #202020 !important;
+}
+
+#root *,
+#root *::before,
+#root *::after {
+  font-family: inherit !important;
+}
+
+#root textarea,
+#root input,
+#root select,
+#root button {
+  font-family: "Instrument Serif", ui-serif, Georgia, serif !important;
+  color: #202020 !important;
+}
+
+#root textarea::placeholder,
+#root input::placeholder {
+  font-family: "Instrument Serif", ui-serif, Georgia, serif !important;
+  color: #202020 !important;
+  text-align: left !important;
+  white-space: pre-wrap !important;
+}
+
+/* Inter — taglines + goals / feelings fields: 16px, light, −2% tracking */
+#root .font-inter-display,
+#root textarea.font-inter-display,
+#root textarea.font-inter-display::placeholder,
+#root input.font-inter-display,
+#root input.font-inter-display::placeholder {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important;
+  font-optical-sizing: auto;
+  font-size: 16px !important;
+  font-weight: 300 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.45 !important;
+}
