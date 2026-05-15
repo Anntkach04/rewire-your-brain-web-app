@@ -84,10 +84,25 @@ body {
     animation: app-bg-breathe 32s ease-in-out infinite alternate;
   }
 
-  .app-bg-photo video {
+  .app-bg-photo video,
+  .app-bg-video {
     display: block;
     min-height: 100%;
     min-width: 100%;
+    pointer-events: none;
+    object-fit: cover;
+  }
+
+  /* Hide native play / timeline UI (especially iOS Safari over background video) */
+  .app-bg-photo video::-webkit-media-controls,
+  .app-bg-photo video::-webkit-media-controls-enclosure,
+  .app-bg-photo video::-webkit-media-controls-panel,
+  .app-bg-photo video::-webkit-media-controls-play-button,
+  .app-bg-photo video::-webkit-media-controls-start-playback-button,
+  .app-bg-photo video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 
   .app-bg-glowspin {

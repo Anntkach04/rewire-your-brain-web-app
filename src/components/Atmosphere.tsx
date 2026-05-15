@@ -27,6 +27,9 @@ export function Atmosphere({ intensity = 1 }: Props) {
   useEffect(() => {
     const el = videoRef.current;
     if (!el || reduceMotion) return;
+    el.controls = false;
+    el.setAttribute("playsinline", "");
+    el.setAttribute("webkit-playsinline", "");
     const p = el.play();
     if (p !== undefined) p.catch(() => {});
   }, [reduceMotion]);
@@ -49,13 +52,18 @@ export function Atmosphere({ intensity = 1 }: Props) {
           ) : (
             <video
               ref={videoRef}
-              className="h-full w-full object-cover"
+              className="app-bg-video h-full w-full object-cover"
               autoPlay
               loop
               muted
               playsInline
               preload="auto"
               poster={POSTER_URL}
+              controls={false}
+              controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"
+              disablePictureInPicture
+              disableRemotePlayback
+              tabIndex={-1}
               aria-hidden
             >
               <source src={VIDEO_URL} type="video/mp4" />
