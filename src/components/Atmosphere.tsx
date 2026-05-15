@@ -15,6 +15,7 @@ const POSTER_URL = `${import.meta.env.BASE_URL}app-background.png`;
 export function Atmosphere({ intensity = 1 }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [staticBg, setStaticBg] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -22,6 +23,15 @@ export function Atmosphere({ intensity = 1 }: Props) {
     const onChange = () => setReduceMotion(mq.matches);
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  /* iOS shows a native play icon over transparent UI; use poster instead */
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    const ios =
+      /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    setStaticBg(ios);
   }, []);
 
   useEffect(() => {
@@ -43,7 +53,7 @@ export function Atmosphere({ intensity = 1 }: Props) {
             opacity: 0.92 * intensity + 0.08,
           }}
         >
-          {reduceMotion ? (
+          {reduceMotion || staticBg ? (
             <div
               className="h-full w-full bg-cover bg-center"
               style={{ backgroundImage: `url(${POSTER_URL})` }}

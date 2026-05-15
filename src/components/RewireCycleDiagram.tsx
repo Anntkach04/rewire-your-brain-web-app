@@ -26,79 +26,50 @@ const BLOB_RADIUS = [
   "42% 58% 63% 37% / 47% 41% 59% 53%",
 ] as const;
 
-const BLOB_SCALE = 1.25 * 1.2; /* +25%, then +20% */
-const BLOB_BOX = 88 * BLOB_SCALE;
-const BLOB_CORE = 62 * BLOB_SCALE;
+const BLOB_SCALE = 1.25 * 1.2;
+const BLOB_CORE = Math.round(62 * BLOB_SCALE);
 
-/** Organic center blob — morphing shapes, centered at SVG origin */
+/** HTML blob — avoids iOS Safari foreignObject offset + pink blur spill */
 function CenterBlob() {
-  const box = BLOB_BOX;
-  const half = box / 2;
-  const core = BLOB_CORE;
-
   return (
-    <foreignObject x={-half} y={-half} width={box} height={box} overflow="hidden">
-      <motion.div className="relative" style={{ width: box, height: box, overflow: "hidden" }}>
-        <motion.div
-          className="absolute left-1/2 top-1/2"
-          style={{
-            width: core,
-            height: core,
-            marginLeft: -core / 2,
-            marginTop: -core / 2,
-            borderRadius: BLOB_RADIUS[0],
-            background:
-              "radial-gradient(at 28% 28%, #FFF8EC 0%, #FBD2B7 45%, #F5E8DC 78%, #EDE6F5 100%)",
-          }}
-          animate={{
-            rotate: [0, 14, -11, 7, -5, 0],
-            scale: [1, 1.06, 0.94, 1.03, 0.97, 1],
-            borderRadius: [...BLOB_RADIUS],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <div
-          className="pointer-events-none absolute"
-          style={{
-            top: "22%",
-            left: "28%",
-            width: "30%",
-            height: "20%",
-            borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(255,255,255,0.75), rgba(255,255,255,0) 72%)",
-          }}
-        />
-      </motion.div>
-    </foreignObject>
+    <motion.div
+      className="pointer-events-none"
+      style={{
+        width: BLOB_CORE,
+        height: BLOB_CORE,
+        borderRadius: BLOB_RADIUS[0],
+        background:
+          "radial-gradient(at 30% 28%, #FFF9EE 0%, #FBD2B7 48%, #F3E4D4 82%, #EBE4F2 100%)",
+      }}
+      animate={{
+        rotate: [0, 12, -9, 6, -4, 0],
+        scale: [1, 1.05, 0.96, 1.03, 0.98, 1],
+        borderRadius: [...BLOB_RADIUS],
+      }}
+      transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+    />
   );
 }
 
 export function RewireCycleDiagram({ className = "" }: { className?: string }) {
   return (
     <motion.div
-      className={`relative mx-auto flex w-full max-w-[300px] shrink-0 items-center justify-center ${className}`}
+      className={`relative mx-auto aspect-square w-[min(58vw,320px)] shrink-0 ${className}`}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       aria-hidden
     >
-      <svg
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
-        className="h-[min(58vw,320px)] w-[min(58vw,320px)]"
-        overflow="visible"
+      <motion.div
+        className="absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2"
+        animate={{ scale: [1, 1.02, 1] }}
+        transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
       >
+        <CenterBlob />
+      </motion.div>
+
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="relative z-10 h-full w-full" overflow="visible">
         <defs>
-          <radialGradient id="rewire-center-grad" cx="45%" cy="40%" r="65%">
-            <stop offset="0%" stopColor="rgba(255,248,236,0.98)" />
-            <stop offset="35%" stopColor="rgba(252,234,176,0.88)" />
-            <stop offset="65%" stopColor="rgba(232,180,184,0.55)" />
-            <stop offset="100%" stopColor="rgba(216,201,238,0.72)" />
-          </radialGradient>
-          <radialGradient id="rewire-glow-pulse-grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(255,255,255,0.5)" />
-            <stop offset="50%" stopColor="rgba(230,210,255,0.3)" />
-            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-          </radialGradient>
           <linearGradient id="rewire-ring-violet" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="rgba(232,214,255,0.95)" />
             <stop offset="50%" stopColor="rgba(210,190,245,0.88)" />
@@ -109,19 +80,6 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             <feMerge>
               <feMergeNode in="b" />
               <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <filter id="rewire-soft-glow" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <filter id="rewire-ring-aura" x="-80%" y="-80%" width="260%" height="260%">
-            <feGaussianBlur stdDeviation="7" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
             </feMerge>
           </filter>
           <filter id="rewire-dot-glow" x="-100%" y="-100%" width="300%" height="300%">
@@ -144,20 +102,13 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
           </marker>
         </defs>
 
-        {/* Single centered group — ring, blob, labels move together */}
-        <motion.g
-          transform={`translate(${CX}, ${CY})`}
-          style={{ transformBox: "fill-box", transformOrigin: "0px 0px" }}
-          animate={{ scale: [1, 1.02, 1] }}
-          transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
-        >
+        <g transform={`translate(${CX}, ${CY})`}>
           <circle
             r={R + 18}
             fill="none"
-            stroke="rgba(255,255,255,0.12)"
-            strokeWidth="12"
-            filter="url(#rewire-ring-aura)"
-            opacity="0.4"
+            stroke="rgba(255,255,255,0.1)"
+            strokeWidth="10"
+            opacity="0.35"
           />
 
           <motion.circle
@@ -165,7 +116,6 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             fill="none"
             stroke="url(#rewire-ring-violet)"
             strokeWidth="4"
-            filter="url(#rewire-ring-aura)"
             animate={{ opacity: [0.28, 0.58, 0.28] }}
             transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -209,8 +159,6 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
               }}
             />
           ))}
-
-          <CenterBlob />
 
           <text
             x={0}
@@ -271,7 +219,7 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
           >
             beliefs
           </text>
-        </motion.g>
+        </g>
       </svg>
     </motion.div>
   );
