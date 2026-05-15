@@ -17,6 +17,112 @@ const NODE_SPOTS = [
   { x: -R, y: 0, key: "l", pulseDelay: 3.3 },
 ] as const;
 
+const BLOB_RADIUS = [
+  "42% 58% 63% 37% / 47% 41% 59% 53%",
+  "58% 42% 35% 65% / 54% 48% 52% 46%",
+  "48% 52% 62% 38% / 43% 57% 43% 57%",
+  "55% 45% 40% 60% / 52% 38% 62% 48%",
+  "38% 62% 55% 45% / 60% 44% 56% 40%",
+  "42% 58% 63% 37% / 47% 41% 59% 53%",
+] as const;
+
+/** Organic center blob — morphing shapes, centered at SVG origin */
+function CenterBlob() {
+  const box = 88;
+  const half = box / 2;
+  const core = 62;
+
+  return (
+    <foreignObject x={-half} y={-half} width={box} height={box} overflow="visible">
+      <motion.div className="relative" style={{ width: box, height: box, overflow: "visible" }}>
+        <motion.div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: core * 1.35,
+            height: core * 1.35,
+            background:
+              "radial-gradient(closest-side, rgba(251,210,183,0.5), rgba(252,234,176,0.22) 48%, rgba(216,201,238,0) 72%)",
+            filter: "blur(10px)",
+          }}
+          animate={{
+            scale: [1, 1.18, 0.95, 1.12, 1],
+            opacity: [0.45, 0.85, 0.55, 0.75, 0.45],
+            rotate: [0, 25, -18, 12, 0],
+          }}
+          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: core * 1.08,
+            height: core * 1.08,
+            background:
+              "radial-gradient(closest-side, rgba(255,227,206,0.75), rgba(232,180,184,0.4) 55%, rgba(216,201,238,0) 78%)",
+            filter: "blur(5px)",
+          }}
+          animate={{
+            scale: [1.05, 0.92, 1.1, 0.98, 1.05],
+            rotate: [0, -15, 20, -8, 0],
+          }}
+          transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute left-1/2 top-1/2"
+          style={{
+            width: core,
+            height: core,
+            marginLeft: -core / 2,
+            marginTop: -core / 2,
+            borderRadius: BLOB_RADIUS[0],
+            background:
+              "radial-gradient(at 28% 28%, #FFF6E2 0%, #FBD2B7 38%, #E8B4B8 72%, #D8C9EE 100%)",
+            boxShadow:
+              "inset 0 4px 18px rgba(255,255,255,0.55), inset 0 -6px 20px rgba(92,70,50,0.14), 0 16px 48px -20px rgba(245,184,156,0.55)",
+          }}
+          animate={{
+            rotate: [0, 14, -11, 7, -5, 0],
+            scale: [1, 1.06, 0.94, 1.03, 0.97, 1],
+            borderRadius: [...BLOB_RADIUS],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute left-1/2 top-1/2"
+          style={{
+            width: core * 0.72,
+            height: core * 0.68,
+            marginLeft: -(core * 0.72) / 2,
+            marginTop: -(core * 0.68) / 2,
+            borderRadius: BLOB_RADIUS[2],
+            background:
+              "radial-gradient(at 40% 35%, rgba(255,255,255,0.35), rgba(252,234,176,0.2) 50%, rgba(216,201,238,0) 85%)",
+            mixBlendMode: "soft-light",
+          }}
+          animate={{
+            rotate: [0, -22, 16, -10, 0],
+            scale: [0.92, 1.08, 0.96, 1.04, 0.92],
+            borderRadius: [BLOB_RADIUS[1], BLOB_RADIUS[3], BLOB_RADIUS[4], BLOB_RADIUS[2], BLOB_RADIUS[0]],
+            opacity: [0.5, 0.85, 0.6, 0.9, 0.5],
+          }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+        />
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            top: "22%",
+            left: "28%",
+            width: "30%",
+            height: "20%",
+            borderRadius: "50%",
+            background: "radial-gradient(closest-side, rgba(255,255,255,0.8), rgba(255,255,255,0) 70%)",
+            filter: "blur(3px)",
+          }}
+        />
+      </motion.div>
+    </foreignObject>
+  );
+}
+
 export function RewireCycleDiagram({ className = "" }: { className?: string }) {
   return (
     <motion.div
@@ -154,34 +260,20 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             />
           ))}
 
-          {/* Center blob — SVG only, anchored at 0,0 (no x/y drift) */}
           <motion.ellipse
             cx={0}
             cy={0}
-            rx={54}
+            rx={56}
             ry={54}
             fill="url(#rewire-glow-pulse-grad)"
             animate={{
-              opacity: [0.45, 0.9, 0.45],
-              rx: [50, 58, 52, 54],
-              ry: [52, 48, 56, 54],
+              opacity: [0.35, 0.7, 0.4, 0.65, 0.35],
+              rx: [52, 60, 48, 58, 52],
+              ry: [56, 48, 58, 50, 56],
             }}
-            transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
-          <motion.ellipse
-            cx={0}
-            cy={0}
-            rx={44}
-            ry={40}
-            fill="url(#rewire-center-grad)"
-            filter="url(#rewire-soft-glow)"
-            animate={{
-              opacity: [0.88, 1, 0.88],
-              rx: [44, 48, 42, 44],
-              ry: [40, 36, 44, 40],
-            }}
-            transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-          />
+          <CenterBlob />
 
           <text
             x={0}
