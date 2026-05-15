@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { copyNotesToClipboard } from "../lib/buildNotesExport";
 import type { SessionState } from "../types";
 
 type Props = {
@@ -12,32 +13,14 @@ export function Step5Notes({ session, onRestart }: Props) {
 
   const allActions = [...session.actions, ...session.customActions];
 
-  function buildPlainText() {
-    const lines: string[] = [];
-    lines.push("Rewired thoughts");
-    lines.push("");
-    lines.push("What I want:");
-    lines.push(session.goals);
-    lines.push("");
-    lines.push("Feelings behind it:");
-    lines.push(session.selectedFeelings.join(", "));
-    lines.push("");
-    lines.push("Why I deserve to feel this way:");
-    lines.push(session.deserveReasons);
-    lines.push("");
-    lines.push("Actions to feel more this way:");
-    allActions.forEach((a, i) => lines.push(`${i + 1}. ${a}`));
-    return lines.join("\n");
-  }
-
   async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(buildPlainText());
-      setCopyState("copied");
-      setTimeout(() => setCopyState("idle"), 1800);
-    } catch {
+    const ok = await copyNotesToClipboard(session);
+    if (!ok) {
       setCopyState("idle");
+      return;
     }
+    setCopyState("copied");
+    setTimeout(() => setCopyState("idle"), 1800);
   }
 
   return (

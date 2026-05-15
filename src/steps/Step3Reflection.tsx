@@ -31,7 +31,7 @@ export function Step3Reflection({ value, onChange, onContinue }: Props) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="glass-field grain relative flex h-[100px] flex-col rounded-[14px] p-3"
+          className="glass-field grain relative flex h-[200px] flex-col rounded-[14px] p-3"
         >
           <textarea
             value={value}

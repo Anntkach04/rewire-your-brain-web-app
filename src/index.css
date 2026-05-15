@@ -222,7 +222,7 @@ body {
   }
 
   .heading {
-    @apply font-display w-full max-w-none text-center text-balance text-[2rem] font-normal leading-[1.08] text-[#202020] tracking-[-0.01em];
+    @apply font-display w-full max-w-none text-center text-balance text-[2.25rem] font-normal leading-[1.08] text-[#202020] tracking-[-0.01em];
   }
 
   .heading-lg {

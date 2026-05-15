@@ -195,22 +195,7 @@ export function Step4Actions({ suggested, customActions, completed, onToggle, on
           </div>
         </div>
       ) : (
-        <div className="mt-6 flex flex-col items-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              setOptionalOpen((o) => !o);
-              setOptionalDraft("");
-            }}
-            className="glass-field grain flex h-[52px] w-full items-center justify-center rounded-[14px] border border-white/45 text-ink transition-shadow hover:shadow-card"
-            aria-expanded={optionalOpen}
-            aria-label={optionalOpen ? "Close add action" : "Add another action"}
-          >
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </button>
-
+        <div className="mt-6 space-y-3">
           <AnimatePresence>
             {optionalOpen ? (
               <motion.div
@@ -241,6 +226,21 @@ export function Step4Actions({ suggested, customActions, completed, onToggle, on
               </motion.div>
             ) : null}
           </AnimatePresence>
+
+          <button
+            type="button"
+            onClick={() => {
+              setOptionalOpen((o) => !o);
+              setOptionalDraft("");
+            }}
+            className="glass-field grain flex h-[52px] w-full items-center justify-center rounded-[14px] border border-white/45 text-ink transition-shadow hover:shadow-card"
+            aria-expanded={optionalOpen}
+            aria-label={optionalOpen ? "Close add action" : "Add another action"}
+          >
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </button>
         </div>
       )}
 
