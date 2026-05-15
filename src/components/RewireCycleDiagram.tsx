@@ -26,7 +26,7 @@ const BLOB_RADIUS = [
   "42% 58% 63% 37% / 47% 41% 59% 53%",
 ] as const;
 
-const BLOB_SCALE = 1.25;
+const BLOB_SCALE = 1.25 * 1.2; /* +25%, then +20% */
 const BLOB_BOX = 88 * BLOB_SCALE;
 const BLOB_CORE = 62 * BLOB_SCALE;
 
@@ -49,9 +49,8 @@ function CenterBlob() {
             filter: "blur(10px)",
           }}
           animate={{
-            scale: [1, 1.18, 0.95, 1.12, 1],
-            opacity: [0.45, 0.85, 0.55, 0.75, 0.45],
-            rotate: [0, 25, -18, 12, 0],
+            scale: [1, 1.14, 0.96, 1.1, 1],
+            opacity: [0.45, 0.8, 0.55, 0.72, 0.45],
           }}
           transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -65,8 +64,7 @@ function CenterBlob() {
             filter: "blur(5px)",
           }}
           animate={{
-            scale: [1.05, 0.92, 1.1, 0.98, 1.05],
-            rotate: [0, -15, 20, -8, 0],
+            scale: [1.05, 0.94, 1.08, 0.98, 1.05],
           }}
           transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -80,8 +78,6 @@ function CenterBlob() {
             borderRadius: BLOB_RADIUS[0],
             background:
               "radial-gradient(at 28% 28%, #FFF6E2 0%, #FBD2B7 38%, #E8B4B8 72%, #D8C9EE 100%)",
-            boxShadow:
-              "inset 0 4px 18px rgba(255,255,255,0.55), inset 0 -6px 20px rgba(92,70,50,0.14), 0 16px 48px -20px rgba(245,184,156,0.55)",
           }}
           animate={{
             rotate: [0, 14, -11, 7, -5, 0],
@@ -103,10 +99,9 @@ function CenterBlob() {
             mixBlendMode: "soft-light",
           }}
           animate={{
-            rotate: [0, -22, 16, -10, 0],
-            scale: [0.92, 1.08, 0.96, 1.04, 0.92],
+            scale: [0.92, 1.06, 0.96, 1.04, 0.92],
             borderRadius: [BLOB_RADIUS[1], BLOB_RADIUS[3], BLOB_RADIUS[4], BLOB_RADIUS[2], BLOB_RADIUS[0]],
-            opacity: [0.5, 0.85, 0.6, 0.9, 0.5],
+            opacity: [0.5, 0.8, 0.6, 0.85, 0.5],
           }}
           transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
         />
@@ -300,7 +295,7 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
 
           <text
             x={0}
-            y={-labelR + 7}
+            y={-labelR + 17}
             textAnchor="middle"
             dominantBaseline="middle"
             fill="#202020"
@@ -320,7 +315,7 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
           </text>
           <text
             x={0}
-            y={labelR - 7}
+            y={labelR - 17}
             textAnchor="middle"
             dominantBaseline="middle"
             fill="#202020"
