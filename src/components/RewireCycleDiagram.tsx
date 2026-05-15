@@ -37,37 +37,8 @@ function CenterBlob() {
   const core = BLOB_CORE;
 
   return (
-    <foreignObject x={-half} y={-half} width={box} height={box} overflow="visible">
-      <motion.div className="relative" style={{ width: box, height: box, overflow: "visible" }}>
-        <motion.div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-          style={{
-            width: core * 1.35,
-            height: core * 1.35,
-            background:
-              "radial-gradient(closest-side, rgba(251,210,183,0.5), rgba(252,234,176,0.22) 48%, rgba(216,201,238,0) 72%)",
-            filter: "blur(10px)",
-          }}
-          animate={{
-            scale: [1, 1.14, 0.96, 1.1, 1],
-            opacity: [0.45, 0.8, 0.55, 0.72, 0.45],
-          }}
-          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-          style={{
-            width: core * 1.08,
-            height: core * 1.08,
-            background:
-              "radial-gradient(closest-side, rgba(255,227,206,0.75), rgba(232,180,184,0.4) 55%, rgba(216,201,238,0) 78%)",
-            filter: "blur(5px)",
-          }}
-          animate={{
-            scale: [1.05, 0.94, 1.08, 0.98, 1.05],
-          }}
-          transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
-        />
+    <foreignObject x={-half} y={-half} width={box} height={box} overflow="hidden">
+      <motion.div className="relative" style={{ width: box, height: box, overflow: "hidden" }}>
         <motion.div
           className="absolute left-1/2 top-1/2"
           style={{
@@ -77,7 +48,7 @@ function CenterBlob() {
             marginTop: -core / 2,
             borderRadius: BLOB_RADIUS[0],
             background:
-              "radial-gradient(at 28% 28%, #FFF6E2 0%, #FBD2B7 38%, #E8B4B8 72%, #D8C9EE 100%)",
+              "radial-gradient(at 28% 28%, #FFF8EC 0%, #FBD2B7 45%, #F5E8DC 78%, #EDE6F5 100%)",
           }}
           animate={{
             rotate: [0, 14, -11, 7, -5, 0],
@@ -85,25 +56,6 @@ function CenterBlob() {
             borderRadius: [...BLOB_RADIUS],
           }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute left-1/2 top-1/2"
-          style={{
-            width: core * 0.72,
-            height: core * 0.68,
-            marginLeft: -(core * 0.72) / 2,
-            marginTop: -(core * 0.68) / 2,
-            borderRadius: BLOB_RADIUS[2],
-            background:
-              "radial-gradient(at 40% 35%, rgba(255,255,255,0.35), rgba(252,234,176,0.2) 50%, rgba(216,201,238,0) 85%)",
-            mixBlendMode: "soft-light",
-          }}
-          animate={{
-            scale: [0.92, 1.06, 0.96, 1.04, 0.92],
-            borderRadius: [BLOB_RADIUS[1], BLOB_RADIUS[3], BLOB_RADIUS[4], BLOB_RADIUS[2], BLOB_RADIUS[0]],
-            opacity: [0.5, 0.8, 0.6, 0.85, 0.5],
-          }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
         />
         <div
           className="pointer-events-none absolute"
@@ -113,8 +65,7 @@ function CenterBlob() {
             width: "30%",
             height: "20%",
             borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(255,255,255,0.8), rgba(255,255,255,0) 70%)",
-            filter: "blur(3px)",
+            background: "radial-gradient(closest-side, rgba(255,255,255,0.75), rgba(255,255,255,0) 72%)",
           }}
         />
       </motion.div>
@@ -259,19 +210,6 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             />
           ))}
 
-          <motion.ellipse
-            cx={0}
-            cy={0}
-            rx={56 * BLOB_SCALE}
-            ry={54 * BLOB_SCALE}
-            fill="url(#rewire-glow-pulse-grad)"
-            animate={{
-              opacity: [0.35, 0.7, 0.4, 0.65, 0.35],
-              rx: [52, 60, 48, 58, 52].map((v) => v * BLOB_SCALE),
-              ry: [56, 48, 58, 50, 56].map((v) => v * BLOB_SCALE),
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          />
           <CenterBlob />
 
           <text
