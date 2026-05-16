@@ -7,9 +7,11 @@ type Props = {
   onActivate: (goals: string) => void;
 };
 
-const PLACEHOLDER = `e.g. I want to be in a loving, secure relationship
-I want to grow my audience to 1M followers
-I want to publish my first book`;
+const GOAL_EXAMPLES = [
+  "e.g. I want to be in a loving, secure relationship",
+  "I want to grow my audience to 1M followers",
+  "I want to publish my first book",
+] as const;
 
 export function Step1Goals({ initialValue, onActivate }: Props) {
   const [value, setValue] = useState(initialValue);
@@ -56,11 +58,25 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
         </p>
 
         <motion.div className="glass-field grain relative mt-6 flex h-[184px] w-full shrink-0 flex-col rounded-[14px] p-4">
+          {!value.trim() ? (
+            <motion.div
+              className="pointer-events-none absolute inset-0 flex flex-col gap-[10px] p-4 text-left"
+              aria-hidden
+            >
+              {GOAL_EXAMPLES.map((line) => (
+                <p
+                  key={line}
+                  className="font-inter-display m-0 text-[13px] font-light leading-[20px] tracking-[-0.02em] text-ink/50"
+                >
+                  {line}
+                </p>
+              ))}
+            </motion.div>
+          ) : null}
           <textarea
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder={PLACEHOLDER}
-            className="placeholder-ink-soft goals-field font-inter-display h-full min-h-0 w-full min-w-0 flex-1 resize-none bg-transparent text-left text-ink caret-ink outline-none selection:bg-ink/10"
+            className="goals-field font-inter-display relative z-[1] h-full min-h-0 w-full min-w-0 flex-1 resize-none bg-transparent text-left text-ink caret-ink outline-none selection:bg-ink/10"
             aria-label="Your goal or dream"
           />
         </motion.div>

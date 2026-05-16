@@ -362,10 +362,10 @@ body {
   line-height: 1.45 !important;
 }
 
-/* Step 1 goal examples — smaller placeholder only */
-#root textarea.goals-field::placeholder {
-  font-size: 13px !important;
-  line-height: 1.4 !important;
+/* Step 1 goal field — typed text */
+#root textarea.goals-field {
+  font-size: 16px !important;
+  line-height: 22px !important;
 }
 
 #root .pill.font-display,
