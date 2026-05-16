@@ -1,1 +1,1 @@
-{"root":["./vite.config.ts"],"version":"5.9.3"}
+{"root":["./vite.config.ts","./vite-plugin-api.ts","./lib/actions-prompt.ts","./lib/actions-system-prompt.ts","./lib/feeling-filter.ts","./lib/rewire-generate-handler.ts","./lib/sanitize-actions.ts","./api/generate.ts","./server/ai/generate.ts","./server/ai/prompt.ts"],"version":"5.9.3"}

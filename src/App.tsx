@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Atmosphere } from "./components/Atmosphere";
 import { PhoneShell } from "./components/PhoneShell";
 import { Step1Goals } from "./steps/Step1Goals";
@@ -7,7 +7,7 @@ import { Step2Feelings } from "./steps/Step2Feelings";
 import { Step3Reflection } from "./steps/Step3Reflection";
 import { Step4Actions } from "./steps/Step4Actions";
 import { Step5Notes } from "./steps/Step5Notes";
-import { generateRewireResponse } from "./lib/generateRewireResponse";
+import { generateRewireResponse, warmupGenerateApi } from "./lib/generateRewireResponse";
 import { getSelectedActions } from "./lib/sessionActions";
 import type { SessionState, StepId } from "./types";
 
@@ -27,6 +27,10 @@ export default function App() {
   const [session, setSession] = useState<SessionState>(EMPTY_SESSION);
   const [thinking, setThinking] = useState(false);
 
+  useEffect(() => {
+    warmupGenerateApi();
+  }, []);
+
   const goTo = useCallback((s: StepId) => {
     setStep(s);
     if (typeof window !== "undefined") {
@@ -42,15 +46,13 @@ export default function App() {
         setSession({
           goals,
           realization: res.realization,
-          suggestedFeelings: res.feelings.length > 0 ? res.feelings : ["clarity", "self-trust", "calm"],
+          suggestedFeelings: res.feelings,
           selectedFeelings: [],
           deserveReasons: "",
-          actions:
-            res.actions.length > 0
-              ? res.actions.slice(0, 2)
-              : ["Do the next obvious small step on your goal"],
+          actions: res.actions.slice(0, 2),
           customActions: [],
           completedActions: [],
+          aiOffline: res.fromApi === false,
         });
       } finally {
         setThinking(false);
@@ -118,12 +120,10 @@ export default function App() {
       setSession((s) => ({
         ...s,
         deserveReasons: "",
-        actions:
-          res.actions.length > 0
-            ? res.actions.slice(0, 2)
-            : ["Keep one promise to yourself before noon, no matter how small"],
+        actions: res.actions.slice(0, 2),
         customActions: [],
         completedActions: [],
+        aiOffline: res.fromApi === false,
       }));
     } finally {
       setThinking(false);
@@ -152,6 +152,7 @@ export default function App() {
           {step === 2 && (
             <Step2Feelings
               key="s2"
+              aiOffline={session.aiOffline}
               suggested={session.suggestedFeelings}
               selected={session.selectedFeelings}
               onToggle={handleToggleFeeling}

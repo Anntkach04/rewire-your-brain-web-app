@@ -17,7 +17,6 @@
   "include": [
     "vite.config.ts",
     "vite-plugin-api.ts",
-    "middleware.ts",
     "lib/**/*.ts",
     "lib/feeling-filter.ts",
     "api/**/*.ts",

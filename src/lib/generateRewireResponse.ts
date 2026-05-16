@@ -215,6 +215,21 @@ function parseApiPayload(raw: string, mode: "full" | "actions"): RewireResponse 
   };
 }
 
+const MAX_ATTEMPTS = 5;
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+/** Warm up the API connection (helps iOS Safari on first tap). */
+export function warmupGenerateApi(): void {
+  if (typeof window === "undefined") return;
+  const url = apiUrl();
+  window.setTimeout(() => {
+    fetch(url, { method: "GET", cache: "no-cache" }).catch(() => {});
+  }, 0);
+}
+
 async function generateWithApi(
   goals: string,
   context: GenerateContext
@@ -226,21 +241,25 @@ async function generateWithApi(
     selectedFeelings: context.selectedFeelings,
     deserveReasons: context.deserveReasons,
   });
+  const url = apiUrl();
 
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    if (attempt > 0) {
+      await wait(400 * attempt);
+    }
+
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 45_000);
+    const timeout = window.setTimeout(() => controller.abort(), 60_000);
 
     try {
-      const response = await fetch(apiUrl(), {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
         body: payload,
-        cache: "no-store",
-        credentials: "same-origin",
+        cache: "no-cache",
         signal: controller.signal,
       });
 
@@ -261,9 +280,10 @@ async function generateWithApi(
           feelings: context.selectedFeelings,
         }),
         realization: parsed.realization,
+        fromApi: true,
       };
     } catch (error) {
-      console.warn("[generate] API request failed", error);
+      console.warn(`[generate] API attempt ${attempt + 1}/${MAX_ATTEMPTS} failed`, error);
     } finally {
       window.clearTimeout(timeout);
     }
@@ -278,10 +298,10 @@ function generateMock(input: string, context: GenerateContext): RewireResponse {
   const actions = pickActions(feelings, goals || input);
 
   if (context.mode === "actions") {
-    return { feelings: [], actions };
+    return { feelings: [], actions, fromApi: false };
   }
 
-  return { feelings, actions };
+  return { feelings, actions, fromApi: false };
 }
 
 /** Calls OpenAI via /api/generate; falls back to local mock if unavailable. */
@@ -293,8 +313,7 @@ export async function generateRewireResponse(
   const fromApi = await generateWithApi(goals, context);
   if (fromApi) return fromApi;
 
-  console.warn("[generate] Using offline fallback — API unreachable or invalid response");
-  await new Promise((r) => setTimeout(r, 600));
+  console.warn("[generate] Using offline fallback — API unreachable after retries");
   return generateMock(input, context);
 }
 

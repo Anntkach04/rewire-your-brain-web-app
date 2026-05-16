@@ -3,6 +3,8 @@ export type RewireResponse = {
   actions: string[];
   /** Optional one-line realization from OpenAI (not always shown in UI) */
   realization?: string;
+  /** False when the app fell back to offline keyword suggestions */
+  fromApi?: boolean;
 };
 
 export type SessionState = {
@@ -18,6 +20,8 @@ export type SessionState = {
   customActions: string[];
   /** Indices into [...actions, ...customActions] checked on step 4 */
   completedActions: number[];
+  /** True when OpenAI could not be reached (shows basic feelings only) */
+  aiOffline?: boolean;
 };
 
 export type StepId = 1 | 2 | 3 | 4 | 5;

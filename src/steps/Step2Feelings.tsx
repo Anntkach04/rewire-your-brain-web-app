@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 
 type Props = {
+  aiOffline?: boolean;
   suggested: string[];
   selected: string[];
   onToggle: (feeling: string) => void;
@@ -18,7 +19,13 @@ const TAG_PALETTES = [
   "from-lavender-mist to-lemon-soft",
 ];
 
+function isLocalDev(): boolean {
+  if (typeof window === "undefined") return false;
+  return /localhost|127\.0\.0\.1/.test(window.location.hostname);
+}
+
 export function Step2Feelings({
+  aiOffline,
   suggested,
   selected,
   onToggle,
@@ -75,6 +82,13 @@ export function Step2Feelings({
           <br />
           Choose the feeling you believe this goal will give you.
         </p>
+        {aiOffline ? (
+          <p className="font-inter-display mx-auto mt-4 max-w-[320px] rounded-[12px] border border-peach-deep/30 bg-white/50 px-4 py-3 text-balance text-[13px] font-light leading-snug text-ink/90">
+            {isLocalDev()
+              ? "AI is offline. Add OPENAI_API_KEY to a .env file in the project folder, restart npm run dev, then try again."
+              : "AI could not connect. Open rewire-your-brain.vercel.app in Safari (not a preview tab), turn off content blockers, wait for the page to load, then tap activate again."}
+          </p>
+        ) : null}
       </div>
 
       <motion.div
