@@ -193,7 +193,7 @@ body {
   .placeholder-ink-soft::placeholder {
     font-family: "Instrument Serif", ui-serif, serif;
     color: #202020;
-    opacity: 0.6;
+    opacity: 0.5;
     text-align: left;
     white-space: pre-wrap;
   }
@@ -343,7 +343,7 @@ body {
 #root input::placeholder {
   font-family: "Instrument Serif", ui-serif, Georgia, serif !important;
   color: #202020 !important;
-  opacity: 0.6 !important;
+  opacity: 0.5 !important;
   text-align: left !important;
   white-space: pre-wrap !important;
 }

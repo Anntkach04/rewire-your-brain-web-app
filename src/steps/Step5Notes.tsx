@@ -107,22 +107,18 @@ export function Step5Notes({ session, onRestart }: Props) {
       </div>
 
       <div className="mt-7">
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="btn-ghost flex w-full items-center justify-center gap-2 py-3.5 text-[16px] font-medium"
-        >
-          <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <button type="button" onClick={onRestart} className="btn-ghost w-full max-w-none font-display text-[14px] font-normal">
+          Add another goal
+        </button>
+      </div>
+
+      <div className="mt-auto pt-6">
+        <button type="button" onClick={handleCopy} className="btn-primary w-full max-w-none">
+          <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <rect x="9" y="9" width="13" height="13" rx="3" />
             <path d="M5 15V5a2 2 0 0 1 2-2h10" />
           </svg>
           {copyState === "copied" ? "Copied ✓" : "Export to notes"}
-        </button>
-      </div>
-
-      <div className="mt-auto pt-8">
-        <button type="button" onClick={onRestart} className="btn-primary w-full max-w-none">
-          Add another goal
         </button>
       </div>
     </motion.section>
