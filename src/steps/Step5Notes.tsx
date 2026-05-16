@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { SelectedFeelingsStrip } from "../components/SelectedFeelingsStrip";
 import { copyNotesToClipboard } from "../lib/buildNotesExport";
 import { getSelectedActions } from "../lib/sessionActions";
 import type { SessionState } from "../types";
@@ -9,7 +10,11 @@ type Props = {
   onRestart: () => void;
 };
 
-const NOTE_BODY = "font-inter-display text-[16px] font-light leading-relaxed text-ink";
+/** Matches step 1 goal field (Inter Display 16px light) */
+const NOTE_GOAL = "font-inter-display text-[16px] font-light leading-[1.65] tracking-[-0.02em] text-ink";
+/** Same as goals, −2px on step 5 */
+const NOTE_REASON = "font-inter-display text-[14px] font-light leading-[1.65] tracking-[-0.02em] text-ink";
+const NOTE_ACTION = "font-inter-display text-[16px] font-light leading-[1.65] tracking-[-0.02em] text-ink";
 
 export function Step5Notes({ session, onRestart }: Props) {
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
@@ -70,36 +75,34 @@ export function Step5Notes({ session, onRestart }: Props) {
               </span>
             </div>
 
-            <div className="mt-6 space-y-5">
+            <motion.div className="mt-7 space-y-7">
               <Block label="What I want">
-                <p className={`${NOTE_BODY} whitespace-pre-wrap`}>{session.goals}</p>
+                <p className={`${NOTE_GOAL} whitespace-pre-wrap`}>{session.goals}</p>
               </Block>
 
               <Block label="Feelings behind it">
-                <div className="flex flex-wrap gap-2">
-                  {session.selectedFeelings.map((f) => (
-                    <span key={f} className="pill font-display px-4 py-2 text-[17px] font-normal text-ink">
-                      {f}
-                    </span>
-                  ))}
-                </div>
+                <SelectedFeelingsStrip
+                  feelings={session.selectedFeelings}
+                  compact
+                  className="!justify-start"
+                />
               </Block>
 
               <Block label="Why I can already feel this">
-                <p className={`${NOTE_BODY} whitespace-pre-wrap`}>{session.deserveReasons}</p>
+                <p className={`${NOTE_REASON} whitespace-pre-wrap`}>{session.deserveReasons}</p>
               </Block>
 
               <Block label="Actions to feel this today">
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {selectedActions.map((a, i) => (
-                    <li key={i} className="flex items-start gap-2.5">
+                    <li key={i} className="flex items-start gap-3">
                       <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-peach-deep" />
-                      <span className={NOTE_BODY}>{a}</span>
+                      <span className={NOTE_ACTION}>{a}</span>
                     </li>
                   ))}
                 </ul>
               </Block>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -126,7 +129,7 @@ export function Step5Notes({ session, onRestart }: Props) {
 function Block({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-2 font-display text-[20px] font-medium leading-snug text-[#141414]">
+      <div className="mb-3 font-display text-[20px] font-medium leading-snug text-[#141414]">
         {label}
       </div>
       {children}

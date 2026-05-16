@@ -98,7 +98,7 @@ export function Step2Feelings({ suggested, selected, onToggle, onAdd, onContinue
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ y: -2 }}
                 className={[
-                  "glass-chip font-display group relative inline-flex items-center gap-1.5 px-4 py-2.5 text-[17px] font-normal text-ink transition-shadow",
+                  "glass-chip font-display group relative inline-flex items-center gap-2 px-5 py-3 text-[17px] font-normal italic text-ink transition-shadow",
                   isSelected
                     ? `bg-gradient-to-br ${palette} shadow-glow ring-1 ring-white/65`
                     : "hover:brightness-[1.02]",

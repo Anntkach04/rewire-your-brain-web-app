@@ -36,18 +36,24 @@ export default function App() {
   const handleActivate = useCallback(
     async (goals: string) => {
       setThinking("listening");
-      const res = await generateRewireResponse(goals);
-      setSession({
-        goals,
-        suggestedFeelings: res.feelings,
-        selectedFeelings: [],
-        deserveReasons: "",
-        actions: res.actions,
-        customActions: [],
-        completedActions: [],
-      });
-      setThinking(false);
-      goTo(2);
+      try {
+        const res = await generateRewireResponse(goals, { mode: "full", goals });
+        setSession({
+          goals,
+          suggestedFeelings: res.feelings.length > 0 ? res.feelings : ["clarity", "self-trust", "calm"],
+          selectedFeelings: [],
+          deserveReasons: "",
+          actions:
+            res.actions.length > 0
+              ? res.actions
+              : ["Notice what instantly drains your energy today"],
+          customActions: [],
+          completedActions: [],
+        });
+      } finally {
+        setThinking(false);
+        goTo(2);
+      }
     },
     [goTo]
   );
@@ -101,17 +107,26 @@ export default function App() {
   const continueFromFeelings = useCallback(async () => {
     if (session.selectedFeelings.length === 0) return;
     setThinking("rewiring");
-    const seed = `${session.goals}\n${session.selectedFeelings.join(", ")}`;
-    const res = await generateRewireResponse(seed);
-    setSession((s) => ({
-      ...s,
-      deserveReasons: "",
-      actions: res.actions,
-      customActions: [],
-      completedActions: [],
-    }));
-    setThinking(false);
-    goTo(3);
+    try {
+      const res = await generateRewireResponse(session.goals, {
+        mode: "actions",
+        goals: session.goals,
+        selectedFeelings: session.selectedFeelings,
+      });
+      setSession((s) => ({
+        ...s,
+        deserveReasons: "",
+        actions:
+          res.actions.length > 0
+            ? res.actions
+            : ["Keep one promise to yourself before noon, no matter how small"],
+        customActions: [],
+        completedActions: [],
+      }));
+    } finally {
+      setThinking(false);
+      goTo(3);
+    }
   }, [goTo, session.goals, session.selectedFeelings]);
 
   return (

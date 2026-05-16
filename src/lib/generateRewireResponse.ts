@@ -1,13 +1,11 @@
 import type { RewireResponse } from "../types";
 
-/**
- * Mock "AI" that maps a user's free-form goal text into the emotional layer
- * the app is built around. Architected to be replaced later by an OpenAI call
- * or an n8n webhook — keep the input/output shape stable.
- *
- * Replace the body with `await fetch(...)` when wiring a backend; the rest of
- * the app only depends on the returned `RewireResponse` shape.
- */
+export type GenerateContext = {
+  mode?: "full" | "actions";
+  goals?: string;
+  selectedFeelings?: string[];
+  deserveReasons?: string;
+};
 
 type FeelingKey =
   | "freedom"
@@ -48,92 +46,62 @@ const ACTIONS: Record<FeelingKey, string[]> = {
   freedom: [
     "Take a walk without your phone for 10 minutes",
     "Say no to one thing you don't actually want to do",
-    "Make a tiny plan for something that excites you",
-    "Spend 20 minutes building your future instead of consuming content",
   ],
   confidence: [
     "Wear the outfit that makes you feel a little powerful",
     "Finish one small thing you've been avoiding",
-    "Speak slower today, especially when you're unsure",
-    "Save one piece of proof that you're improving",
   ],
   peace: [
     "Put your phone in another room for 30 minutes",
-    "Drink your next drink slowly, without doing anything else",
-    "Write down one thing that doesn't need to be solved today",
     "Let one thing be enough exactly as it is",
   ],
   excitement: [
     "Write the first sentence of a future you want",
-    "Send the message you've been overthinking",
-    "Listen to a song that makes you feel like the main character",
     "Plan one small thing for a day that hasn't happened yet",
   ],
   security: [
     "Make your bed slowly and notice how the room feels after",
-    "Check one boring practical thing off your list",
     "Eat a meal sitting down, without screens",
-    "Text someone who feels like home, even just hi",
   ],
   love: [
     "Tell someone something kind that you usually only think",
     "Notice one moment today where you were already loved",
-    "Touch your own face gently when you wash it tonight",
-    "Reread a message that made you feel chosen",
   ],
   belonging: [
     "Reach out first to one person who actually matters",
-    "Sit somewhere semi-public and just exist for 15 minutes",
     "Share something small you usually keep to yourself",
-    "Reply to the message you've been leaving on read",
   ],
   calm: [
     "Put your phone away for 30 minutes",
-    "Clean one small corner of your space",
-    "Listen to music without multitasking",
     "Write down what actually matters today",
   ],
   validation: [
     "Acknowledge one thing you did that nobody saw",
-    "Re-read a recent compliment slowly",
-    "Write one sentence you wish someone would say to you — then say it",
     "Catch yourself doing something well, out loud",
   ],
   clarity: [
     "Write the same question three times until the real answer shows up",
-    "Close five tabs you've been keeping open just in case",
-    "Decide one tiny thing you've been postponing",
     "Spend 10 minutes alone with no input — no music, no scroll",
   ],
   stability: [
-    "Do one thing today the same way you did yesterday on purpose",
     "Eat a real meal at a real time",
-    "Move your body for 10 minutes, gently",
     "Pick one anchor for tomorrow and write it down",
   ],
   joy: [
     "Do something on purpose that has no outcome",
-    "Watch something that used to make you laugh as a kid",
-    "Move your body in a way that isn't exercise",
     "Notice one beautiful thing on your way somewhere",
   ],
   creativity: [
     "Make something ugly on purpose for 10 minutes",
-    "Collect three things today that catch your eye",
     "Write one sentence that nobody will ever read",
-    "Rearrange one small surface in your space",
   ],
   "self-trust": [
     "Keep one promise to yourself before noon, no matter how small",
-    "Don't ask for an opinion on something you already know",
-    "Write down one thing your past self was right about",
     "Do the thing you'd respect yourself for, not the easy one",
   ],
   softness: [
     "Speak to yourself the way you'd speak to a tired friend",
-    "Wear the most comfortable thing you own for an hour",
     "Let yourself not respond immediately",
-    "Touch something warm — tea, sun, blanket — and notice it",
   ],
 };
 
@@ -147,8 +115,7 @@ function pickFeelings(input: string): FeelingKey[] {
     }
   }
   if (found.size === 0) DEFAULT_FEELINGS.forEach((f) => found.add(f));
-  // Keep a soft cap so tags don't overflow
-  return Array.from(found).slice(0, 6);
+  return Array.from(found).slice(0, 5);
 }
 
 function pickActions(feelings: FeelingKey[]): string[] {
@@ -168,34 +135,76 @@ function pickActions(feelings: FeelingKey[]): string[] {
     if (picked.length === 2) break;
   }
 
-  if (picked.length < 2 && feelings[0]) {
-    for (const a of ACTIONS[feelings[0]]) {
-      if (picked.length === 2) break;
-      if (!used.has(a)) {
-        picked.push(a);
-        used.add(a);
-      }
-    }
-  }
-
   while (picked.length < 2) {
-    picked.push("Notice one small thing today that already feels like what you want");
+    picked.push("Notice what instantly drains your energy today");
   }
 
   return picked.slice(0, 2);
 }
 
-export async function generateRewireResponse(input: string): Promise<RewireResponse> {
-  // Simulate a gentle "thinking" delay so the brain-activation moment lands.
-  await new Promise((r) => setTimeout(r, 1100));
+async function generateWithApi(
+  goals: string,
+  context: GenerateContext
+): Promise<RewireResponse | null> {
+  const mode = context.mode ?? "full";
 
+  try {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode,
+        goals,
+        selectedFeelings: context.selectedFeelings,
+        deserveReasons: context.deserveReasons,
+      }),
+    });
+
+    if (!response.ok) {
+      if (import.meta.env.DEV) {
+        console.warn("[generate] API error", response.status, await response.text());
+      }
+      return null;
+    }
+
+    const data = (await response.json()) as RewireResponse;
+    if (!Array.isArray(data.actions) || data.actions.length === 0) return null;
+    if (mode === "full" && (!Array.isArray(data.feelings) || data.feelings.length === 0)) {
+      return null;
+    }
+
+    return {
+      feelings: data.feelings ?? [],
+      actions: data.actions,
+      realization: data.realization,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function generateMock(input: string, context: GenerateContext): RewireResponse {
   const feelings = pickFeelings(input);
   const actions = pickActions(feelings);
 
-  return {
-    feelings,
-    actions,
-  };
+  if (context.mode === "actions") {
+    return { feelings: [], actions };
+  }
+
+  return { feelings, actions };
+}
+
+/** Calls OpenAI via /api/generate; falls back to local mock if unavailable. */
+export async function generateRewireResponse(
+  input: string,
+  context: GenerateContext = {}
+): Promise<RewireResponse> {
+  const goals = (context.goals ?? input).trim();
+  const fromApi = await generateWithApi(goals, context);
+  if (fromApi) return fromApi;
+
+  await new Promise((r) => setTimeout(r, 900));
+  return generateMock(input, context);
 }
 
 export const ALL_FEELINGS: FeelingKey[] = [

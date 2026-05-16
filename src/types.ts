@@ -1,6 +1,8 @@
 export type RewireResponse = {
   feelings: string[];
   actions: string[];
+  /** Optional one-line realization from OpenAI (not always shown in UI) */
+  realization?: string;
 };
 
 export type SessionState = {

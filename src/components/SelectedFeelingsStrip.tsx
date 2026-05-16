@@ -12,10 +12,12 @@ const TAG_PALETTES = [
 type Props = {
   feelings: string[];
   className?: string;
+  /** Step 5 brain note — same chip style, 2px smaller */
+  compact?: boolean;
 };
 
 /** Read-only feeling chips shown on steps 3–5 */
-export function SelectedFeelingsStrip({ feelings, className = "" }: Props) {
+export function SelectedFeelingsStrip({ feelings, className = "", compact = false }: Props) {
   if (feelings.length === 0) return null;
 
   return (
@@ -23,7 +25,7 @@ export function SelectedFeelingsStrip({ feelings, className = "" }: Props) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className={`flex flex-wrap justify-center gap-2.5 ${className}`}
+      className={`flex flex-wrap justify-center gap-3 ${className}`}
       aria-label="Your selected feelings"
     >
       {feelings.map((f, i) => {
@@ -31,7 +33,7 @@ export function SelectedFeelingsStrip({ feelings, className = "" }: Props) {
         return (
           <span
             key={f}
-            className={`glass-chip font-display inline-flex items-center gap-1.5 px-4 py-2.5 text-[17px] font-normal text-ink bg-gradient-to-br ${palette} shadow-glow ring-1 ring-white/65`}
+            className={`glass-chip font-display inline-flex items-center gap-2 px-5 py-3 font-normal italic text-ink bg-gradient-to-br ${palette} shadow-glow ring-1 ring-white/65 ${compact ? "text-[15px]" : "text-[17px]"}`}
           >
             <span
               className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current"

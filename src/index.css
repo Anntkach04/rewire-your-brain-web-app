@@ -366,4 +366,9 @@ body {
 #root .glass-chip.font-display {
   font-family: "Instrument Serif", ui-serif, Georgia, serif !important;
   font-size: 17px !important;
+  font-style: italic;
+}
+
+#root .glass-chip.font-display.text-\[15px\] {
+  font-size: 15px !important;
 }
