@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { RewireCycleDiagram } from "../components/RewireCycleDiagram";
 
 type Props = {
@@ -18,15 +18,6 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
   const [activating, setActivating] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isActive, setIsActive] = useState(false);
-  const [apiOk, setApiOk] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    fetch("/api/generate", { cache: "no-cache" })
-      .then((r) => r.json())
-      .then((d: { ok?: boolean; aiReady?: boolean }) => setApiOk(Boolean(d.ok && d.aiReady)))
-      .catch(() => setApiOk(false));
-  }, []);
-
   const showExamples = !value.trim() && !isActive;
 
   function activateField() {
@@ -77,19 +68,6 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
         <p className="font-inter-display mt-2 w-full text-center text-ink">
           (one goal at a time works best)
         </p>
-
-        {apiOk === false ? (
-          <p className="font-inter-display mt-3 w-full rounded-[12px] border border-peach-deep/35 bg-white/55 px-3 py-2 text-center text-[12px] font-light leading-snug text-ink/90">
-            AI not configured on this deploy — Vercel → Settings → Environment Variables → add{" "}
-            <strong className="font-normal">OPENAI_API_KEY</strong> → Redeploy. (Local:{" "}
-            <code className="text-[11px]">npm run start</code>)
-          </p>
-        ) : null}
-        {apiOk === true ? (
-          <p className="font-inter-display mt-2 text-center text-[11px] font-light text-ink/50">
-            AI connected
-          </p>
-        ) : null}
 
         <motion.div
           className="glass-field grain relative mt-6 flex h-[184px] w-full shrink-0 flex-col rounded-[14px] p-4"
