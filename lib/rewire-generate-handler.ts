@@ -1,4 +1,7 @@
+import { ACTIONS_INSTRUCTION } from "./actions-prompt";
+import { ACTIONS_SYSTEM_PROMPT } from "./actions-system-prompt";
 import { DESIRED_FEELINGS_INSTRUCTION, filterDesiredFeelings } from "./feeling-filter";
+import { sanitizeActions } from "./sanitize-actions";
 
 const SYSTEM_PROMPT = `You are the emotional reflection engine behind a self-concept transformation app inspired by the book "Beyond Belief".
 
@@ -8,11 +11,12 @@ Based on user input, generate emotionally intelligent content.
 
 ${DESIRED_FEELINGS_INSTRUCTION}
 
-Tone: introspective, honest, emotionally cinematic, calm, never generic motivation, never productivity-focused, never "girlboss".
+Tone: introspective, honest, emotionally cinematic, calm, never generic motivation, never "girlboss".
 
-Avoid: affirmations, manifestation language, productivity advice, "you got this".
+Avoid: affirmations, manifestation language, "you got this".
+Tasks must still be small concrete behaviors (post, walk, message someone) — not reflection homework.
 
-Actions should feel like subtle psychological prompts (e.g. notice what drains energy, write the same question three times until the real answer shows up).
+${ACTIONS_INSTRUCTION}
 
 Always respond with valid JSON only, no markdown.`;
 
@@ -43,7 +47,12 @@ function normalizeList(items: unknown, max: number, fallback: string[]): string[
   return cleaned.slice(0, max);
 }
 
-function parseResult(raw: string, mode: "full" | "actions") {
+function parseResult(
+  raw: string,
+  mode: "full" | "actions",
+  goals: string,
+  selectedFeelings: string[],
+) {
   const parsed = JSON.parse(raw) as OpenAIJson;
   const realization =
     typeof parsed.realization === "string"
@@ -62,10 +71,11 @@ function parseResult(raw: string, mode: "full" | "actions") {
           }),
         );
 
-  const actions = normalizeList(parsed.tasks, MAX_TASKS, [
-    "Write the same question three times until the real answer shows up",
+  const rawActions = normalizeList(parsed.tasks, MAX_TASKS, [
+    "Post one small step toward your goal today",
     "Keep one promise to yourself before noon, no matter how small",
   ]);
+  const actions = sanitizeActions(rawActions, { goals, feelings: selectedFeelings });
 
   return { feelings, actions, realization };
 }
@@ -80,8 +90,8 @@ function buildUserMessage(body: GenerateRequest, mode: "full" | "actions"): stri
   }
   parts.push(
     mode === "actions"
-      ? `\nGenerate exactly 2 new actions (no more).\nOutput JSON:\n${ACTIONS_SCHEMA}`
-      : `\nGenerate realization, feeling chips, and exactly 2 tasks (no more).\n${DESIRED_FEELINGS_INSTRUCTION}\nOutput JSON:\n${FULL_SCHEMA}`,
+      ? `\nGenerate exactly 2 new actions (no more).\n${ACTIONS_INSTRUCTION}\nOutput JSON:\n${ACTIONS_SCHEMA}`
+      : `\nGenerate realization, feeling chips, and exactly 2 tasks (no more).\n${DESIRED_FEELINGS_INSTRUCTION}\n${ACTIONS_INSTRUCTION}\nOutput JSON:\n${FULL_SCHEMA}`,
   );
   return parts.join("\n\n");
 }
@@ -112,6 +122,8 @@ export async function handleGenerateRequest(request: Request): Promise<Response>
 
     const mode = body.mode === "actions" ? "actions" : "full";
     const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+    const goals = body.goals.trim();
+    const feelings = body.selectedFeelings ?? [];
 
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -121,10 +133,13 @@ export async function handleGenerateRequest(request: Request): Promise<Response>
       },
       body: JSON.stringify({
         model,
-        temperature: 0.85,
+        temperature: mode === "actions" ? 0.35 : 0.85,
         response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          {
+            role: "system",
+            content: mode === "actions" ? ACTIONS_SYSTEM_PROMPT : SYSTEM_PROMPT,
+          },
           { role: "user", content: buildUserMessage(body, mode) },
         ],
       }),
@@ -146,7 +161,7 @@ export async function handleGenerateRequest(request: Request): Promise<Response>
       return Response.json({ error: "Empty OpenAI response" }, { status: 502 });
     }
 
-    const result = parseResult(content, mode);
+    const result = parseResult(content, mode, goals, feelings);
     return Response.json(result, {
       headers: { "Cache-Control": "no-store" },
     });

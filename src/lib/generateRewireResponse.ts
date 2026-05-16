@@ -1,3 +1,4 @@
+import { GOAL_ACTION_PATTERNS, sanitizeActions } from "../../lib/sanitize-actions";
 import type { RewireResponse } from "../types";
 
 export type GenerateContext = {
@@ -44,64 +45,64 @@ const KEYWORD_TO_FEELINGS: Array<[RegExp, FeelingKey[]]> = [
 
 const ACTIONS: Record<FeelingKey, string[]> = {
   freedom: [
-    "Take a walk without your phone for 10 minutes",
+    "Take a 10-minute walk without your phone",
     "Say no to one thing you don't actually want to do",
   ],
   confidence: [
+    "Post or send one thing you've been holding back",
     "Wear the outfit that makes you feel a little powerful",
-    "Finish one small thing you've been avoiding",
   ],
   peace: [
     "Put your phone in another room for 30 minutes",
-    "Let one thing be enough exactly as it is",
+    "Drink a full glass of water slowly",
   ],
   excitement: [
-    "Write the first sentence of a future you want",
-    "Plan one small thing for a day that hasn't happened yet",
+    "Do one bold small thing you've been postponing",
+    "Share one update about something you care about",
   ],
   security: [
-    "Make your bed slowly and notice how the room feels after",
-    "Eat a meal sitting down, without screens",
+    "Eat one meal sitting down, no screens",
+    "Get 10k steps today",
   ],
   love: [
-    "Tell someone something kind that you usually only think",
-    "Notice one moment today where you were already loved",
+    "Send one honest message to someone you care about",
+    "Give someone a real compliment out loud",
   ],
   belonging: [
-    "Reach out first to one person who actually matters",
-    "Share something small you usually keep to yourself",
+    "Text one person who actually matters to you",
+    "Show up to one place where you feel like yourself",
   ],
   calm: [
     "Put your phone away for 30 minutes",
-    "Write down what actually matters today",
+    "Take 10 slow breaths before your next task",
   ],
   validation: [
-    "Acknowledge one thing you did that nobody saw",
-    "Catch yourself doing something well, out loud",
+    "Finish one small thing you've been avoiding",
+    "Post or share one piece of work you're proud of",
   ],
   clarity: [
-    "Write the same question three times until the real answer shows up",
-    "Spend 10 minutes alone with no input — no music, no scroll",
+    "Write one sentence about what you want today",
+    "Do the next obvious small step on your goal",
   ],
   stability: [
     "Eat a real meal at a real time",
-    "Pick one anchor for tomorrow and write it down",
+    "Go to bed 30 minutes earlier tonight",
   ],
   joy: [
-    "Do something on purpose that has no outcome",
-    "Notice one beautiful thing on your way somewhere",
+    "Do one thing today just because it feels good",
+    "Play one song you love and don't multitask",
   ],
   creativity: [
-    "Make something ugly on purpose for 10 minutes",
-    "Write one sentence that nobody will ever read",
+    "Post one thing you made, even if it's unfinished",
+    "Spend 15 minutes on your creative work",
   ],
   "self-trust": [
     "Keep one promise to yourself before noon, no matter how small",
     "Do the thing you'd respect yourself for, not the easy one",
   ],
   softness: [
-    "Speak to yourself the way you'd speak to a tired friend",
-    "Let yourself not respond immediately",
+    "Take a real break without guilt for 20 minutes",
+    "Say no to one thing that drains you today",
   ],
 };
 
@@ -118,9 +119,21 @@ function pickFeelings(input: string): FeelingKey[] {
   return Array.from(found).slice(0, 5);
 }
 
-function pickActions(feelings: FeelingKey[]): string[] {
+function pickGoalActions(goals: string): string[] {
   const picked: string[] = [];
-  const used = new Set<string>();
+  const lower = goals.toLowerCase();
+  for (const [pattern, action] of GOAL_ACTION_PATTERNS) {
+    if (pattern.test(lower) && !picked.includes(action)) {
+      picked.push(action);
+    }
+    if (picked.length >= 2) break;
+  }
+  return picked;
+}
+
+function pickActions(feelings: FeelingKey[], goals: string): string[] {
+  const picked = pickGoalActions(goals);
+  const used = new Set(picked);
 
   for (const f of feelings) {
     const pool = ACTIONS[f];
@@ -136,10 +149,10 @@ function pickActions(feelings: FeelingKey[]): string[] {
   }
 
   while (picked.length < 2) {
-    picked.push("Notice what instantly drains your energy today");
+    picked.push("Do the next obvious small step on your goal");
   }
 
-  return picked.slice(0, 2);
+  return sanitizeActions(picked, { goals }, 2);
 }
 
 function apiUrl(): string {
@@ -188,7 +201,10 @@ async function generateWithApi(
 
       return {
         feelings: data.feelings ?? [],
-        actions: data.actions,
+        actions: sanitizeActions(data.actions, {
+          goals,
+          feelings: context.selectedFeelings,
+        }),
         realization: data.realization,
       };
     } catch (error) {
@@ -202,8 +218,9 @@ async function generateWithApi(
 }
 
 function generateMock(input: string, context: GenerateContext): RewireResponse {
-  const feelings = pickFeelings(input);
-  const actions = pickActions(feelings);
+  const goals = (context.goals ?? input).trim();
+  const feelings = pickFeelings(goals || input);
+  const actions = pickActions(feelings, goals || input);
 
   if (context.mode === "actions") {
     return { feelings: [], actions };

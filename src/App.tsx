@@ -48,7 +48,7 @@ export default function App() {
           actions:
             res.actions.length > 0
               ? res.actions.slice(0, 2)
-              : ["Notice what instantly drains your energy today"],
+              : ["Do the next obvious small step on your goal"],
           customActions: [],
           completedActions: [],
         });

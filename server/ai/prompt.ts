@@ -1,4 +1,7 @@
+import { ACTIONS_INSTRUCTION } from "../../lib/actions-prompt";
 import { DESIRED_FEELINGS_INSTRUCTION } from "../../lib/feeling-filter";
+
+export const ACTIONS_USER_HINT = ACTIONS_INSTRUCTION;
 
 export const FEELINGS_USER_HINT = DESIRED_FEELINGS_INSTRUCTION;
 
@@ -26,8 +29,8 @@ The tone should feel:
 - calm and intelligent
 - never overly positive
 - never "girlboss"
-- never productivity-focused
 - never generic motivation
+- tasks are the exception: small concrete things you can do today (walk, post, drink water) — not reflection homework
 
 The app is based on the idea that people already know many answers internally, but avoid emotionally confronting them.
 
@@ -38,17 +41,7 @@ Avoid:
 - "you got this"
 - obvious self-help exercises
 
-Actions should feel similar to:
-- Write the same question three times until the real answer shows up
-- Keep one promise to yourself before noon, no matter how small
-- Notice what kind of life you secretly envy today
-- Pay attention to what instantly drains your energy today
-- Write down the moment you started doubting yourself
-- Do one thing your future self would consider "normal"
-- Catch yourself shrinking in real time
-- Observe what you apologize for automatically
-- Wear something that feels more like "you"
-- Ask yourself what you are still waiting permission for
+${ACTIONS_INSTRUCTION}
 
 The realization should be short, emotionally precise, human, never explain too much, never sound AI-generated.
 
@@ -64,9 +57,9 @@ Always respond with valid JSON only, no markdown.`;
 export const FULL_OUTPUT_SCHEMA = `{
   "realization": "one short emotional realization",
   "feelings": ["3 to 5 short labels for feelings they WANT to feel (desired states only, 1-2 words, lowercase)"],
-  "tasks": ["exactly 2 suggested actions"]
+  "tasks": ["exactly 2 small concrete actions for today"]
 }`;
 
 export const ACTIONS_OUTPUT_SCHEMA = `{
-  "tasks": ["exactly 2 suggested actions"]
+  "tasks": ["exactly 2 small concrete actions for today"]
 }`;

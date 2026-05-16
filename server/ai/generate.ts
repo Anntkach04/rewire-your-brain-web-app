@@ -1,6 +1,9 @@
+import { ACTIONS_SYSTEM_PROMPT } from "../../lib/actions-system-prompt";
 import { filterDesiredFeelings } from "../../lib/feeling-filter";
+import { sanitizeActions } from "../../lib/sanitize-actions";
 import {
   ACTIONS_OUTPUT_SCHEMA,
+  ACTIONS_USER_HINT,
   FEELINGS_USER_HINT,
   FULL_OUTPUT_SCHEMA,
   SYSTEM_PROMPT,
@@ -41,12 +44,14 @@ function buildUserMessage(body: GenerateRequest): string {
   if (body.mode === "actions") {
     parts.push(
       "\nGenerate exactly 2 new actions (tasks), no more.",
-      `Output JSON:\n${ACTIONS_OUTPUT_SCHEMA}`
+      ACTIONS_USER_HINT,
+      `Output JSON:\n${ACTIONS_OUTPUT_SCHEMA}`,
     );
   } else {
     parts.push(
       "\nGenerate a realization, feeling chip labels, and exactly 2 tasks, no more.",
       FEELINGS_USER_HINT,
+      ACTIONS_USER_HINT,
       `Output JSON:\n${FULL_OUTPUT_SCHEMA}`,
     );
   }
@@ -64,7 +69,12 @@ function normalizeList(items: unknown, min: number, max: number, fallback: strin
   return [...cleaned, ...fallback].slice(0, max);
 }
 
-function parseOpenAIContent(raw: string, mode: GenerateMode): GenerateResult {
+function parseOpenAIContent(
+  raw: string,
+  mode: GenerateMode,
+  goals: string,
+  selectedFeelings: string[],
+): GenerateResult {
   const parsed = JSON.parse(raw) as OpenAIJson;
 
   const realization =
@@ -91,10 +101,11 @@ function parseOpenAIContent(raw: string, mode: GenerateMode): GenerateResult {
           }),
         );
 
-  const actions = normalizeList(parsed.tasks, 2, 2, [
-    "Write the same question three times until the real answer shows up",
+  const rawActions = normalizeList(parsed.tasks, 2, 2, [
+    "Post one small step toward your goal today",
     "Keep one promise to yourself before noon, no matter how small",
   ]);
+  const actions = sanitizeActions(rawActions, { goals, feelings: selectedFeelings });
 
   return {
     feelings: mode === "actions" ? [] : feelings,
@@ -110,6 +121,8 @@ export async function generateWithOpenAI(body: GenerateRequest): Promise<Generat
   }
 
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const mode = body.mode;
+  const feelings = body.selectedFeelings ?? [];
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -119,10 +132,13 @@ export async function generateWithOpenAI(body: GenerateRequest): Promise<Generat
     },
     body: JSON.stringify({
       model,
-      temperature: 0.85,
+      temperature: mode === "actions" ? 0.35 : 0.85,
       response_format: { type: "json_object" },
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        {
+          role: "system",
+          content: mode === "actions" ? ACTIONS_SYSTEM_PROMPT : SYSTEM_PROMPT,
+        },
         { role: "user", content: buildUserMessage(body) },
       ],
     }),
@@ -140,5 +156,5 @@ export async function generateWithOpenAI(body: GenerateRequest): Promise<Generat
   const content = data.choices?.[0]?.message?.content;
   if (!content) throw new Error("Empty OpenAI response");
 
-  return parseOpenAIContent(content, body.mode);
+  return parseOpenAIContent(content, body.mode, body.goals.trim(), feelings);
 }
