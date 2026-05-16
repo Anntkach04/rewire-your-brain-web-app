@@ -46,17 +46,10 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             <stop offset="50%" stopColor="rgba(210,190,245,0.88)" />
             <stop offset="100%" stopColor="rgba(245,236,255,0.92)" />
           </linearGradient>
-          <filter id="rewire-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="b" />
+          <filter id="rewire-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.2" result="b" />
             <feMerge>
               <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <filter id="rewire-dot-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="3.5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
