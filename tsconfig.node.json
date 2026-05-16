@@ -14,5 +14,12 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts",
+    "vite-plugin-api.ts",
+    "middleware.ts",
+    "lib/**/*.ts",
+    "api/**/*.ts",
+    "server/**/*.ts"
+  ]
 }
