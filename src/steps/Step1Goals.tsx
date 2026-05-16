@@ -16,6 +16,9 @@ const GOAL_EXAMPLES = [
 export function Step1Goals({ initialValue, onActivate }: Props) {
   const [value, setValue] = useState(initialValue);
   const [activating, setActivating] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const showExamples = !value.trim() && !isFocused;
 
   const disabled = value.trim().length < 3 || activating;
 
@@ -58,7 +61,7 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
         </p>
 
         <motion.div className="glass-field grain relative mt-6 flex h-[184px] w-full shrink-0 flex-col rounded-[14px] p-4">
-          {!value.trim() ? (
+          {showExamples ? (
             <motion.div
               className="pointer-events-none absolute inset-0 flex flex-col gap-[10px] p-4 text-left"
               aria-hidden
@@ -76,6 +79,8 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
           <textarea
             value={value}
             onChange={(e) => setValue(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             className="goals-field font-inter-display relative z-[1] h-full min-h-0 w-full min-w-0 flex-1 resize-none bg-transparent text-left text-ink caret-ink outline-none selection:bg-ink/10"
             aria-label="Your goal or dream"
           />

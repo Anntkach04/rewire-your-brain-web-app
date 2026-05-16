@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { SelectedFeelingsStrip } from "../components/SelectedFeelingsStrip";
 
 type Props = {
@@ -15,7 +16,9 @@ const REFLECTION_EXAMPLES = [
 ] as const;
 
 export function Step3Reflection({ selectedFeelings, value, onChange, onContinue }: Props) {
+  const [isFocused, setIsFocused] = useState(false);
   const canContinue = value.trim().length >= 8;
+  const showExamples = !value.trim() && !isFocused;
 
   return (
     <motion.section
@@ -44,7 +47,7 @@ export function Step3Reflection({ selectedFeelings, value, onChange, onContinue 
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="glass-field grain relative flex h-[220px] flex-col rounded-[14px] p-4"
         >
-          {!value.trim() ? (
+          {showExamples ? (
             <motion.div
               className="pointer-events-none absolute inset-0 flex flex-col gap-[10px] p-4 text-left"
               aria-hidden
@@ -65,6 +68,8 @@ export function Step3Reflection({ selectedFeelings, value, onChange, onContinue 
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             className="goals-field font-inter-display relative z-[1] min-h-0 w-full flex-1 resize-none overflow-y-auto bg-transparent text-left text-ink caret-ink outline-none selection:bg-ink/10"
             aria-label="Evidence that you already feel this way"
           />
