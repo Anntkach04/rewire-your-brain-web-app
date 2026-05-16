@@ -5,16 +5,16 @@ const CX = SIZE / 2;
 const CY = SIZE / 2;
 const R = 86;
 /** Distance from center to label anchor (same for every stage). */
-const LABEL_R = 130;
+const LABEL_R = 104;
 /** Extra push outward along each label's radial line. */
-const LABEL_OUTWARD = 12;
+const LABEL_OUTWARD = 6;
 /** Longer words get a bit more radial room so they don't crowd the ring. */
 const LABEL_RADIAL_EXTRA: Record<(typeof STAGES)[number], number> = {
-  goal: 2,
-  feel: 4,
-  validate: 10,
-  act: 2,
-  become: 6,
+  goal: 0,
+  feel: 2,
+  validate: 5,
+  act: 0,
+  become: 3,
 };
 
 const fs = 23;
