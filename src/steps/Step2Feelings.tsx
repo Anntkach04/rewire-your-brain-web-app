@@ -86,7 +86,7 @@ export function Step2Feelings({
           <p className="font-inter-display mx-auto mt-4 max-w-[320px] rounded-[12px] border border-peach-deep/30 bg-white/50 px-4 py-3 text-balance text-[13px] font-light leading-snug text-ink/90">
             {isLocalDev()
               ? "AI is offline. Add OPENAI_API_KEY to a .env file in the project folder, restart npm run dev, then try again."
-              : "AI could not connect. Open rewire-your-brain.vercel.app in Safari (not a preview tab), turn off content blockers, wait for the page to load, then tap activate again."}
+              : "AI is not connected on this site. In Vercel: Project → Settings → Environment Variables → add OPENAI_API_KEY (same as in your .env) → Deployments → Redeploy, then reload this page."}
           </p>
         ) : null}
       </div>

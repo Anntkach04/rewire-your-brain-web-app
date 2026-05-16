@@ -110,10 +110,14 @@ export async function handleGenerateRequest(request: Request): Promise<Response>
   }
 
   if (request.method === "GET") {
+    const hasKey = Boolean(process.env.OPENAI_API_KEY?.trim());
     return Response.json(
       {
         ok: true,
-        message: "Rewire API is live. Send POST with { mode, goals }.",
+        aiReady: hasKey,
+        message: hasKey
+          ? "Rewire API is live. Send POST with { mode, goals }."
+          : "API is up but OPENAI_API_KEY is missing in Vercel Environment Variables.",
       },
       { headers: JSON_HEADERS },
     );

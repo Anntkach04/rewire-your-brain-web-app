@@ -23,7 +23,7 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
   useEffect(() => {
     fetch("/api/generate", { cache: "no-cache" })
       .then((r) => r.json())
-      .then((d: { ok?: boolean }) => setApiOk(Boolean(d.ok)))
+      .then((d: { ok?: boolean; aiReady?: boolean }) => setApiOk(Boolean(d.ok && d.aiReady)))
       .catch(() => setApiOk(false));
   }, []);
 
@@ -80,9 +80,9 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
 
         {apiOk === false ? (
           <p className="font-inter-display mt-3 w-full rounded-[12px] border border-peach-deep/35 bg-white/55 px-3 py-2 text-center text-[12px] font-light leading-snug text-ink/90">
-            AI offline on this tab — run{" "}
-            <code className="text-[11px]">npm run start</code> in the project folder, or use{" "}
-            <strong className="font-normal">rewire-your-brain.vercel.app</strong>
+            AI not configured on this deploy — Vercel → Settings → Environment Variables → add{" "}
+            <strong className="font-normal">OPENAI_API_KEY</strong> → Redeploy. (Local:{" "}
+            <code className="text-[11px]">npm run start</code>)
           </p>
         ) : null}
         {apiOk === true ? (

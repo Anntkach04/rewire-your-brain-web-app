@@ -19,12 +19,16 @@ export function apiPlugin(env: Record<string, string>): Plugin {
         if (!req.url?.startsWith("/api/generate")) return next();
 
         if (req.method === "GET") {
+          const hasKey = Boolean(env.OPENAI_API_KEY?.trim());
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
           res.end(
             JSON.stringify({
               ok: true,
-              message: "Rewire API (dev). POST { mode, goals }.",
+              aiReady: hasKey,
+              message: hasKey
+                ? "Rewire API (dev). POST { mode, goals }."
+                : "Add OPENAI_API_KEY to .env in the project folder.",
             }),
           );
           return;
