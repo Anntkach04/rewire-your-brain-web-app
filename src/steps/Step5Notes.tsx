@@ -88,7 +88,7 @@ export function Step5Notes({ session, onRestart }: Props) {
                 />
               </Block>
 
-              <Block label="Why I can already feel this">
+              <Block label="Why can you already feel this?">
                 <p className={`${NOTE_REASON} whitespace-pre-wrap`}>{session.deserveReasons}</p>
               </Block>
 

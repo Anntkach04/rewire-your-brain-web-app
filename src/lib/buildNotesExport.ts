@@ -56,7 +56,7 @@ export function buildNotesPlainText(session: SessionState, actions: string[]): s
     "",
     ...plainSection("What I want:", session.goals),
     ...plainSection("Feelings behind it:", formatFeelings(session.selectedFeelings)),
-    ...plainSection("Why I can already feel this:", session.deserveReasons),
+    ...plainSection("Why can you already feel this?", session.deserveReasons),
     "Actions to feel this today:",
     "",
   ];
@@ -107,7 +107,7 @@ export function buildNotesHtml(session: SessionState, actions: string[]): string
 <h2 style="font-size:20px;font-weight:600;margin:0 0 2em;color:#141414;">Rewired thoughts</h2>
 ${htmlSection("What I want:", goalsHtml)}
 ${htmlSection("Feelings behind it:", feelingsHtml)}
-${htmlSection("Why I can already feel this:", reasonsHtml, NOTE_REASON_STYLE)}
+${htmlSection("Why can you already feel this?", reasonsHtml, NOTE_REASON_STYLE)}
 <h3 style="font-size:17px;font-weight:600;margin:2em 0 0.65em;color:#141414;">Actions to feel this today:</h3>
 <div style="margin:0 0 2.25em;">${actionBlock}</div>
 </body></html>`;
