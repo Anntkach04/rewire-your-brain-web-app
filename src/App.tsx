@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { Atmosphere } from "./components/Atmosphere";
@@ -226,6 +227,8 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <Analytics />
     </>
   );
 }
