@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
+import { SelectedFeelingsStrip } from "../components/SelectedFeelingsStrip";
 
 type Props = {
+  selectedFeelings: string[];
   value: string;
   onChange: (value: string) => void;
   onContinue: () => void;
@@ -10,7 +12,7 @@ const PLACEHOLDER = `I've kept going even when things felt uncertain.
 I care about doing right by myself and the people I love.
 I'm allowed to want this feeling without earning it first.`;
 
-export function Step3Reflection({ value, onChange, onContinue }: Props) {
+export function Step3Reflection({ selectedFeelings, value, onChange, onContinue }: Props) {
   const canContinue = value.trim().length >= 8;
 
   return (
@@ -24,6 +26,7 @@ export function Step3Reflection({ value, onChange, onContinue }: Props) {
       <div className="text-center">
         <span className="step-label">step 3</span>
         <h1 className="heading mt-3 text-balance px-1">Write down the reasons why you deserve to feel this way</h1>
+        <SelectedFeelingsStrip feelings={selectedFeelings} className="mt-5" />
       </div>
 
       <div className="mt-8 shrink-0">

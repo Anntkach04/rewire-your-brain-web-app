@@ -146,6 +146,7 @@ export default function App() {
           {step === 3 && (
             <Step3Reflection
               key="s3"
+              selectedFeelings={session.selectedFeelings}
               value={session.deserveReasons}
               onChange={(deserveReasons) => setSession((s) => ({ ...s, deserveReasons }))}
               onContinue={() => goTo(4)}
@@ -155,6 +156,7 @@ export default function App() {
           {step === 4 && (
             <Step4Actions
               key="s4"
+              selectedFeelings={session.selectedFeelings}
               suggested={session.actions}
               customActions={session.customActions}
               completed={session.completedActions}

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { SelectedFeelingsStrip } from "../components/SelectedFeelingsStrip";
 import { copyNotesToClipboard } from "../lib/buildNotesExport";
 import { getSelectedActions } from "../lib/sessionActions";
 import type { SessionState } from "../types";
@@ -38,6 +39,7 @@ export function Step5Notes({ session, onRestart }: Props) {
         <p className="subtle font-inter-display mt-3 mx-auto max-w-[320px] text-balance">
           A soft page to keep. Read it tomorrow morning.
         </p>
+        <SelectedFeelingsStrip feelings={session.selectedFeelings} className="mt-5" />
       </div>
 
       <div className="mt-7">

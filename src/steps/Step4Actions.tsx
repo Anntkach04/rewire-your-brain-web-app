@@ -1,7 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { SelectedFeelingsStrip } from "../components/SelectedFeelingsStrip";
 
 type Props = {
+  selectedFeelings: string[];
   suggested: string[];
   customActions: string[];
   completed: number[];
@@ -66,7 +68,15 @@ function ActionCard({
   );
 }
 
-export function Step4Actions({ suggested, customActions, completed, onToggle, onAddCustom, onContinue }: Props) {
+export function Step4Actions({
+  selectedFeelings,
+  suggested,
+  customActions,
+  completed,
+  onToggle,
+  onAddCustom,
+  onContinue,
+}: Props) {
   const [draft, setDraft] = useState("");
 
   const combined = [...suggested, ...customActions];
@@ -110,6 +120,7 @@ export function Step4Actions({ suggested, customActions, completed, onToggle, on
             {done}/{total}
           </span>
         </div>
+        <SelectedFeelingsStrip feelings={selectedFeelings} className="mt-5" />
       </div>
 
       <div className="mt-7 min-h-0 flex-1 space-y-6 overflow-y-auto">
