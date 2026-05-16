@@ -6,19 +6,57 @@ const CY = SIZE / 2;
 const R = 86;
 const labelR = 138;
 
-const fs = 20;
-const centerFs = 19;
+const fs = 23;
+const centerFs = 22;
 const serif = '"Instrument Serif", ui-serif, serif';
 
-const NODE_SPOTS = [
-  { x: 0, y: -R, key: "t", pulseDelay: 0 },
-  { x: R, y: 0, key: "r", pulseDelay: 1.1 },
-  { x: 0, y: R, key: "b", pulseDelay: 2.2 },
-  { x: -R, y: 0, key: "l", pulseDelay: 3.3 },
-] as const;
+const STAGES = ["goal", "feel", "validate", "act", "become"] as const;
+const STAGE_COUNT = STAGES.length;
+const START_ANGLE = -Math.PI / 2;
 
 const BLOB_SCALE = 1.25 * 1.2;
 const BLOB_R = (62 * BLOB_SCALE) / 2;
+
+function spotAt(radius: number, index: number) {
+  const angle = START_ANGLE + (index * 2 * Math.PI) / STAGE_COUNT;
+  return {
+    x: radius * Math.cos(angle),
+    y: radius * Math.sin(angle),
+    angle,
+  };
+}
+
+function arcBetween(radius: number, fromIndex: number) {
+  const from = spotAt(radius, fromIndex);
+  const to = spotAt(radius, (fromIndex + 1) % STAGE_COUNT);
+  return `M ${from.x} ${from.y} A ${radius} ${radius} 0 0 1 ${to.x} ${to.y}`;
+}
+
+function labelLayout(index: number) {
+  const { x, y, angle } = spotAt(labelR, index);
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+
+  if (Math.abs(cos) > Math.abs(sin)) {
+    return {
+      x: x + (cos > 0 ? 6 : -6),
+      y,
+      textAnchor: cos > 0 ? ("start" as const) : ("end" as const),
+    };
+  }
+
+  return {
+    x,
+    y: y + (sin > 0 ? 10 : -10),
+    textAnchor: "middle" as const,
+  };
+}
+
+const NODE_SPOTS = STAGES.map((key, i) => ({
+  key,
+  ...spotAt(R, i),
+  pulseDelay: i * 0.9,
+}));
 
 export function RewireCycleDiagram({ className = "" }: { className?: string }) {
   return (
@@ -29,11 +67,7 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       aria-hidden
     >
-      <svg
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
-        className="block h-auto w-full"
-        overflow="visible"
-      >
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="block h-auto w-full" overflow="visible">
         <defs>
           <radialGradient id="rewire-blob-grad" cx="32%" cy="30%" r="68%">
             <stop offset="0%" stopColor="#FFF9EE" />
@@ -101,10 +135,9 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
               animate={{ opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
             >
-              <path d={`M 0 ${-R} A ${R} ${R} 0 0 1 ${R} 0`} markerEnd="url(#rewire-arrow-head)" />
-              <path d={`M ${R} 0 A ${R} ${R} 0 0 1 0 ${R}`} markerEnd="url(#rewire-arrow-head)" />
-              <path d={`M 0 ${R} A ${R} ${R} 0 0 1 ${-R} 0`} markerEnd="url(#rewire-arrow-head)" />
-              <path d={`M ${-R} 0 A ${R} ${R} 0 0 1 0 ${-R}`} markerEnd="url(#rewire-arrow-head)" />
+              {STAGES.map((_, i) => (
+                <path key={i} d={arcBetween(R, i)} markerEnd="url(#rewire-arrow-head)" />
+              ))}
             </motion.g>
           </g>
 
@@ -131,7 +164,6 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             />
           ))}
 
-          {/* Blob: cx/cy = 0 — exact center of ring */}
           <motion.ellipse
             cx={0}
             cy={0}
@@ -156,46 +188,22 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             brain loop
           </text>
 
-          <text
-            x={0}
-            y={-labelR + 17}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill="#202020"
-            style={{ fontSize: fs, fontFamily: serif }}
-          >
-            goal
-          </text>
-          <text
-            x={labelR + 5}
-            y={0}
-            textAnchor="end"
-            dominantBaseline="middle"
-            fill="#202020"
-            style={{ fontSize: fs, fontFamily: serif }}
-          >
-            feel
-          </text>
-          <text
-            x={0}
-            y={labelR - 17}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill="#202020"
-            style={{ fontSize: fs, fontFamily: serif }}
-          >
-            validate
-          </text>
-          <text
-            x={-labelR - 5}
-            y={0}
-            textAnchor="start"
-            dominantBaseline="middle"
-            fill="#202020"
-            style={{ fontSize: fs, fontFamily: serif }}
-          >
-            act
-          </text>
+          {STAGES.map((label, i) => {
+            const { x, y, textAnchor } = labelLayout(i);
+            return (
+              <text
+                key={label}
+                x={x}
+                y={y}
+                textAnchor={textAnchor}
+                dominantBaseline="middle"
+                fill="#202020"
+                style={{ fontSize: fs, fontFamily: serif }}
+              >
+                {label}
+              </text>
+            );
+          })}
         </g>
       </svg>
     </motion.div>
