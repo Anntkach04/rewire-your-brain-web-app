@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { copyNotesToClipboard } from "../lib/buildNotesExport";
+import { getSelectedActions } from "../lib/sessionActions";
 import type { SessionState } from "../types";
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 export function Step5Notes({ session, onRestart }: Props) {
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
 
-  const allActions = [...session.actions, ...session.customActions];
+  const selectedActions = getSelectedActions(session);
 
   async function handleCopy() {
     const ok = await copyNotesToClipboard(session);
@@ -92,7 +93,7 @@ export function Step5Notes({ session, onRestart }: Props) {
 
               <Block label="Actions to feel more this way.">
                 <ul className="space-y-2">
-                  {allActions.map((a, i) => (
+                  {selectedActions.map((a, i) => (
                     <li key={i} className="flex items-start gap-2.5">
                       <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-peach-deep" />
                       <span className="font-inter-display text-ink">{a}</span>

@@ -11,8 +11,8 @@ export type SessionState = {
   deserveReasons: string;
   /** Two suggested actions from the mock generator */
   actions: string[];
-  /** User-added actions (at least one required before step 5) */
   customActions: string[];
+  /** Indices into [...actions, ...customActions] checked on step 4 */
   completedActions: number[];
 };
 

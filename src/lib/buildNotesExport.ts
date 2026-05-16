@@ -1,3 +1,4 @@
+import { getSelectedActions } from "./sessionActions";
 import type { SessionState } from "../types";
 
 const CHECKBOX = "\u2610"; // ☐ — Apple Notes often turns these into tappable checklists
@@ -94,7 +95,7 @@ export function buildNotesHtml(session: SessionState, actions: string[]): string
 }
 
 export async function copyNotesToClipboard(session: SessionState): Promise<boolean> {
-  const actions = [...session.actions, ...session.customActions];
+  const actions = getSelectedActions(session);
   const plain = buildNotesPlainText(session, actions);
   const html = buildNotesHtml(session, actions);
 

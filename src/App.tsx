@@ -8,6 +8,7 @@ import { Step3Reflection } from "./steps/Step3Reflection";
 import { Step4Actions } from "./steps/Step4Actions";
 import { Step5Notes } from "./steps/Step5Notes";
 import { generateRewireResponse } from "./lib/generateRewireResponse";
+import { getSelectedActions } from "./lib/sessionActions";
 import type { SessionState, StepId } from "./types";
 
 const EMPTY_SESSION: SessionState = {
@@ -159,7 +160,10 @@ export default function App() {
               completed={session.completedActions}
               onToggle={handleToggleAction}
               onAddCustom={handleAddCustomAction}
-              onContinue={() => goTo(5)}
+              onContinue={() => {
+                if (getSelectedActions(session).length === 0) return;
+                goTo(5);
+              }}
             />
           )}
 

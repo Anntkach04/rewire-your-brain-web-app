@@ -41,7 +41,7 @@ export function Step4Actions({ suggested, customActions, completed, onToggle, on
     setOptionalOpen(false);
   }
 
-  const canContinue = customActions.length >= 1;
+  const canContinue = completed.length >= 1;
 
   return (
     <motion.section
