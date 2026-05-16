@@ -23,7 +23,7 @@ const EMPTY_SESSION: SessionState = {
 export default function App() {
   const [step, setStep] = useState<StepId>(1);
   const [session, setSession] = useState<SessionState>(EMPTY_SESSION);
-  const [thinking, setThinking] = useState(false);
+  const [thinking, setThinking] = useState<false | "listening" | "rewiring">(false);
 
   const goTo = useCallback((s: StepId) => {
     setStep(s);
@@ -34,7 +34,7 @@ export default function App() {
 
   const handleActivate = useCallback(
     async (goals: string) => {
-      setThinking(true);
+      setThinking("listening");
       const res = await generateRewireResponse(goals);
       setSession({
         goals,
@@ -99,7 +99,7 @@ export default function App() {
 
   const continueFromFeelings = useCallback(async () => {
     if (session.selectedFeelings.length === 0) return;
-    setThinking(true);
+    setThinking("rewiring");
     const seed = `${session.goals}\n${session.selectedFeelings.join(", ")}`;
     const res = await generateRewireResponse(seed);
     setSession((s) => ({
@@ -197,7 +197,9 @@ export default function App() {
                 }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
               />
-              <span className="font-display text-[14px] font-normal italic text-ink">listening…</span>
+              <span className="font-display text-[14px] font-normal italic text-ink">
+                {thinking === "listening" ? "listening…" : "rewiring…"}
+              </span>
             </motion.div>
           </motion.div>
         )}
