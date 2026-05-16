@@ -113,7 +113,7 @@ export function Step5Notes({ session, onRestart }: Props) {
             <rect x="9" y="9" width="13" height="13" rx="3" />
             <path d="M5 15V5a2 2 0 0 1 2-2h10" />
           </svg>
-          {copyState === "copied" ? "Copied ✓" : "Copy notes"}
+          {copyState === "copied" ? "Copied ✓" : "Copy to notes"}
         </button>
       </div>
 
