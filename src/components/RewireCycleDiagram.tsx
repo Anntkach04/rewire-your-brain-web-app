@@ -4,7 +4,7 @@ const SIZE = 320;
 const CX = SIZE / 2;
 const CY = SIZE / 2;
 const R = 86;
-const labelR = 133;
+const labelR = 128;
 
 const fs = 23;
 const centerFs = 22;
