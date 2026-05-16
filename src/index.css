@@ -361,3 +361,7 @@ body {
   letter-spacing: -0.02em !important;
   line-height: 1.45 !important;
 }
+
+#root .pill.font-inter-display {
+  font-size: 14px !important;
+}

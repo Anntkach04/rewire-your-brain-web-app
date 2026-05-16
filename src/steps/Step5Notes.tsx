@@ -10,6 +10,8 @@ type Props = {
   onRestart: () => void;
 };
 
+const NOTE_BODY = "font-inter-display text-[16px] font-light leading-relaxed text-ink";
+
 export function Step5Notes({ session, onRestart }: Props) {
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
 
@@ -72,15 +74,13 @@ export function Step5Notes({ session, onRestart }: Props) {
 
             <div className="mt-6 space-y-5">
               <Block label="What I want">
-                <p className="font-display whitespace-pre-wrap text-[15px] font-normal leading-relaxed text-ink">
-                  {session.goals}
-                </p>
+                <p className={`${NOTE_BODY} whitespace-pre-wrap`}>{session.goals}</p>
               </Block>
 
               <Block label="Feelings behind it">
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {session.selectedFeelings.map((f) => (
-                    <span key={f} className="pill font-display text-[12px] font-normal text-ink">
+                    <span key={f} className="pill font-inter-display px-4 py-2 text-[14px] font-light text-ink">
                       {f}
                     </span>
                   ))}
@@ -88,17 +88,15 @@ export function Step5Notes({ session, onRestart }: Props) {
               </Block>
 
               <Block label="Why I can already feel this">
-                <p className="font-display whitespace-pre-wrap text-[15px] font-normal leading-relaxed text-ink">
-                  {session.deserveReasons}
-                </p>
+                <p className={`${NOTE_BODY} whitespace-pre-wrap`}>{session.deserveReasons}</p>
               </Block>
 
               <Block label="Actions to feel this today">
                 <ul className="space-y-2">
                   {selectedActions.map((a, i) => (
                     <li key={i} className="flex items-start gap-2.5">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-peach-deep" />
-                      <span className="font-inter-display text-ink">{a}</span>
+                      <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-peach-deep" />
+                      <span className={NOTE_BODY}>{a}</span>
                     </li>
                   ))}
                 </ul>
@@ -130,7 +128,7 @@ export function Step5Notes({ session, onRestart }: Props) {
 function Block({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-2 font-display text-[16px] font-normal leading-snug text-ink">
+      <div className="mb-2 font-display text-[20px] font-medium leading-snug text-[#141414]">
         {label}
       </div>
       {children}
