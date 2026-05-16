@@ -49,10 +49,10 @@ export function buildNotesPlainText(session: SessionState, actions: string[]): s
     "Feelings behind it:",
     feelings,
     "",
-    "Why I deserve to feel this way:",
+    "Why I can already feel this:",
     quoteForExport(session.deserveReasons),
     "",
-    "Actions to feel more this way:",
+    "Actions to feel this today:",
   ];
 
   if (actions.length === 0) {
@@ -87,9 +87,9 @@ export function buildNotesHtml(session: SessionState, actions: string[]): string
 <p style="margin:0 0 0.5em;font-style:italic;">${escapeHtml(quoteForExport(session.goals))}</p>
 <h3 style="font-size:16px;font-weight:normal;margin:1.25em 0 0.35em;">Feelings behind it:</h3>
 <p style="margin:0 0 0.5em;font-style:italic;">${escapeHtml(feelingsQuoted)}</p>
-<h3 style="font-size:16px;font-weight:normal;margin:1.25em 0 0.35em;">Why I deserve to feel this way:</h3>
+<h3 style="font-size:16px;font-weight:normal;margin:1.25em 0 0.35em;">Why I can already feel this:</h3>
 <p style="margin:0 0 0.5em;font-style:italic;">${escapeHtml(quoteForExport(session.deserveReasons))}</p>
-<h3 style="font-size:16px;font-weight:normal;margin:1.25em 0 0.35em;">Actions to feel more this way:</h3>
+<h3 style="font-size:16px;font-weight:normal;margin:1.25em 0 0.35em;">Actions to feel this today:</h3>
 <ul style="list-style:none;padding-left:0;margin:0.5em 0 0;">${actionItems}</ul>
 </body></html>`;
 }

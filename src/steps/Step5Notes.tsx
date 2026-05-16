@@ -37,7 +37,7 @@ export function Step5Notes({ session, onRestart }: Props) {
         <span className="step-label">step 5</span>
         <h1 className="heading mt-3 text-balance">Your rewired thoughts</h1>
         <p className="subtle font-inter-display mt-3 mx-auto max-w-[320px] text-balance">
-          A soft page to keep. Read it tomorrow morning.
+          Save this to your notes and act on this today.
         </p>
         <SelectedFeelingsStrip feelings={session.selectedFeelings} className="mt-5" />
       </div>
@@ -87,13 +87,13 @@ export function Step5Notes({ session, onRestart }: Props) {
                 </div>
               </Block>
 
-              <Block label="Why I deserve to feel this way">
+              <Block label="Why I can already feel this">
                 <p className="font-display whitespace-pre-wrap text-[15px] font-normal leading-relaxed text-ink">
                   {session.deserveReasons}
                 </p>
               </Block>
 
-              <Block label="Actions to feel more this way.">
+              <Block label="Actions to feel this today">
                 <ul className="space-y-2">
                   {selectedActions.map((a, i) => (
                     <li key={i} className="flex items-start gap-2.5">
@@ -109,7 +109,7 @@ export function Step5Notes({ session, onRestart }: Props) {
       </div>
 
       <div className="mt-7">
-        <button type="button" onClick={onRestart} className="btn-ghost w-full max-w-none font-display text-[14px] font-normal">
+        <button type="button" onClick={onRestart} className="btn-ghost w-full max-w-none font-display text-[20px] font-normal">
           Add another goal
         </button>
       </div>
