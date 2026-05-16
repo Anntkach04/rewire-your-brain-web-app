@@ -4,7 +4,7 @@ const SIZE = 320;
 const CX = SIZE / 2;
 const CY = SIZE / 2;
 const R = 86;
-const labelR = 138;
+const labelR = 133;
 
 const fs = 23;
 const centerFs = 22;
@@ -14,7 +14,7 @@ const STAGES = ["goal", "feel", "validate", "act", "become"] as const;
 const STAGE_COUNT = STAGES.length;
 const START_ANGLE = -Math.PI / 2;
 
-const BLOB_SCALE = 1.25 * 1.2;
+const BLOB_SCALE = 1.25 * 1.2 * 1.2;
 const BLOB_R = (62 * BLOB_SCALE) / 2;
 
 function spotAt(radius: number, index: number) {
