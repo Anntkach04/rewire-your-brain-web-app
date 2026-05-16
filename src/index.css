@@ -91,6 +91,7 @@ body {
     min-width: 100%;
     pointer-events: none;
     object-fit: cover;
+    -webkit-appearance: none;
   }
 
   /* Hide native play / timeline UI (especially iOS Safari over background video) */

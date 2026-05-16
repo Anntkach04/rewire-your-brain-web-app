@@ -64,19 +64,16 @@ function htmlSection(heading: string, body: string): string {
   return `${htmlGap()}<p style="font-size:17px;font-weight:bold;margin:0;color:#000000;">${escapeHtml(heading)}</p>${htmlGap()}<p style="font-size:17px;font-weight:normal;margin:0;line-height:2;color:#000000;">${curlyQuotedItalicHtml(body)}</p>`;
 }
 
+function htmlBulletLine(text: string): string {
+  return `<p style="font-size:17px;margin:0;line-height:2;color:#000000;">${BULLET}&nbsp;${escapeHtml(trimBody(text))}</p>`;
+}
+
 function htmlActionList(actions: string[]): string {
   if (actions.length === 0) {
-    return `<p style="font-size:17px;margin:0;line-height:2;">${BULLET}&nbsp;</p>`;
+    return htmlBulletLine("");
   }
 
-  const items = actions
-    .map(
-      (a) =>
-        `<li style="font-size:17px;line-height:2;margin:0 0 1.5em 0;padding:0;">${escapeHtml(trimBody(a))}</li>`,
-    )
-    .join("");
-
-  return `${htmlGap()}<ul style="margin:0;padding:0 0 0 1.25em;list-style-type:disc;">${items}</ul>`;
+  return `${htmlGap()}${actions.map((a) => `${htmlBulletLine(a)}${htmlGap()}`).join("")}`;
 }
 
 export function buildNotesPlainText(session: SessionState, actions: string[]): string {
