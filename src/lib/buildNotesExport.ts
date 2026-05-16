@@ -1,7 +1,8 @@
 import { getSelectedActions } from "./sessionActions";
 import type { SessionState } from "../types";
 
-const CHECKBOX = "\u2610"; // ☐ — Apple Notes often turns these into tappable checklists
+/** Apple Notes / Reminders turn this into a tappable checklist item */
+const CHECKBOX = "\u2610";
 
 function escapeHtml(s: string): string {
   return s
@@ -11,11 +12,13 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function quoteForExport(text: string): string {
-  const trimmed = text.trim();
-  if (!trimmed) return '""';
-  const inner = trimmed.replace(/"/g, "'");
-  return `"${inner}"`;
+function trimBody(text: string): string {
+  return text.trim();
+}
+
+function formatFeelings(feelings: string[]): string {
+  if (feelings.length === 0) return "";
+  return feelings.map((f) => f.trim()).filter(Boolean).join(", ");
 }
 
 export function formatNotesExportDate(date = new Date()): string {
@@ -32,65 +35,63 @@ export function formatNotesExportDate(date = new Date()): string {
   return `${day} at ${time}`;
 }
 
-export function buildNotesPlainText(session: SessionState, actions: string[]): string {
-  const feelings =
-    session.selectedFeelings.length > 0
-      ? quoteForExport(session.selectedFeelings.join(", "))
-      : '""';
+/** One section: heading, blank line, body, two blank lines after */
+function plainSection(heading: string, body: string): string[] {
+  const content = trimBody(body);
+  return [heading, "", content, "", ""];
+}
 
+export function buildNotesPlainText(session: SessionState, actions: string[]): string {
   const lines: string[] = [
     formatNotesExportDate(),
     "",
     "Rewired thoughts",
     "",
-    "What I want:",
-    quoteForExport(session.goals),
     "",
-    "Feelings behind it:",
-    feelings,
-    "",
-    "Why I can already feel this:",
-    quoteForExport(session.deserveReasons),
-    "",
+    ...plainSection("What I want:", session.goals),
+    ...plainSection("Feelings behind it:", formatFeelings(session.selectedFeelings)),
+    ...plainSection("Why I can already feel this:", session.deserveReasons),
     "Actions to feel this today:",
+    "",
   ];
 
   if (actions.length === 0) {
-    lines.push(`${CHECKBOX} `);
+    lines.push(`${CHECKBOX} `, "");
   } else {
-    actions.forEach((a) => lines.push(`${CHECKBOX} ${a.trim()}`));
+    actions.forEach((a) => {
+      lines.push(`${CHECKBOX} ${trimBody(a)}`);
+    });
+    lines.push("");
   }
 
-  return lines.join("\n");
+  return lines.join("\n").trimEnd() + "\n";
+}
+
+function htmlSection(heading: string, body: string): string {
+  const content = escapeHtml(trimBody(body));
+  return `<h3 style="font-size:17px;font-weight:600;margin:1.75em 0 0.5em;color:#141414;">${escapeHtml(heading)}</h3>
+<p style="margin:0 0 1.75em;font-size:16px;line-height:1.5;">${content || "&nbsp;"}</p>`;
+}
+
+function htmlChecklistItem(text: string): string {
+  return `<p style="margin:0.4em 0;font-size:16px;line-height:1.45;">${CHECKBOX} ${escapeHtml(trimBody(text))}</p>`;
 }
 
 export function buildNotesHtml(session: SessionState, actions: string[]): string {
-  const feelingsQuoted =
-    session.selectedFeelings.length > 0
-      ? quoteForExport(session.selectedFeelings.join(", "))
-      : '""';
-
-  const actionItems =
+  const feelingsBody = formatFeelings(session.selectedFeelings);
+  const actionBlock =
     actions.length > 0
-      ? actions
-          .map(
-            (a) =>
-              `<li style="list-style:none;margin:0.35em 0;padding-left:0;">${CHECKBOX} ${escapeHtml(a.trim())}</li>`
-          )
-          .join("")
-      : `<li style="list-style:none;">${CHECKBOX} </li>`;
+      ? actions.map((a) => htmlChecklistItem(a)).join("")
+      : htmlChecklistItem("");
 
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Georgia,serif;color:#202020;line-height:1.5;">
-<p style="font-size:13px;color:#555;margin:0 0 1em;">${escapeHtml(formatNotesExportDate())}</p>
-<h2 style="font-size:20px;font-weight:normal;margin:0 0 1em;">Rewired thoughts</h2>
-<h3 style="font-size:16px;font-weight:normal;margin:1.25em 0 0.35em;">What I want:</h3>
-<p style="margin:0 0 0.5em;font-style:italic;">${escapeHtml(quoteForExport(session.goals))}</p>
-<h3 style="font-size:16px;font-weight:normal;margin:1.25em 0 0.35em;">Feelings behind it:</h3>
-<p style="margin:0 0 0.5em;font-style:italic;">${escapeHtml(feelingsQuoted)}</p>
-<h3 style="font-size:16px;font-weight:normal;margin:1.25em 0 0.35em;">Why I can already feel this:</h3>
-<p style="margin:0 0 0.5em;font-style:italic;">${escapeHtml(quoteForExport(session.deserveReasons))}</p>
-<h3 style="font-size:16px;font-weight:normal;margin:1.25em 0 0.35em;">Actions to feel this today:</h3>
-<ul style="list-style:none;padding-left:0;margin:0.5em 0 0;">${actionItems}</ul>
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Georgia,'Times New Roman',serif;color:#202020;line-height:1.5;margin:0;padding:0;">
+<p style="font-size:13px;color:#555;margin:0 0 1.25em;">${escapeHtml(formatNotesExportDate())}</p>
+<h2 style="font-size:20px;font-weight:600;margin:0 0 1.5em;color:#141414;">Rewired thoughts</h2>
+${htmlSection("What I want:", session.goals)}
+${htmlSection("Feelings behind it:", feelingsBody)}
+${htmlSection("Why I can already feel this:", session.deserveReasons)}
+<h3 style="font-size:17px;font-weight:600;margin:1.75em 0 0.5em;color:#141414;">Actions to feel this today:</h3>
+<div style="margin:0 0 1.75em;">${actionBlock}</div>
 </body></html>`;
 }
 
