@@ -58,9 +58,9 @@ Always respond with valid JSON only, no markdown.`;
 export const FULL_OUTPUT_SCHEMA = `{
   "realization": "one short emotional realization",
   "feelings": ["3 to 5 short feeling labels, each 1-2 words, lowercase, for UI chips"],
-  "tasks": ["2 to 4 suggested actions"]
+  "tasks": ["exactly 2 suggested actions"]
 }`;
 
 export const ACTIONS_OUTPUT_SCHEMA = `{
-  "tasks": ["2 to 4 suggested actions"]
+  "tasks": ["exactly 2 suggested actions"]
 }`;

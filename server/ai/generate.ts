@@ -34,12 +34,12 @@ function buildUserMessage(body: GenerateRequest): string {
 
   if (body.mode === "actions") {
     parts.push(
-      "\nGenerate only new actions (tasks) aligned with their goal and chosen feelings.",
+      "\nGenerate exactly 2 new actions (tasks), no more.",
       `Output JSON:\n${ACTIONS_OUTPUT_SCHEMA}`
     );
   } else {
     parts.push(
-      "\nGenerate a realization, feeling chip labels, and initial tasks.",
+      "\nGenerate a realization, feeling chip labels, and exactly 2 tasks, no more.",
       `Output JSON:\n${FULL_OUTPUT_SCHEMA}`
     );
   }
@@ -84,7 +84,7 @@ function parseOpenAIContent(raw: string, mode: GenerateMode): GenerateResult {
           })
           .slice(0, 5);
 
-  const actions = normalizeList(parsed.tasks, 2, 4, [
+  const actions = normalizeList(parsed.tasks, 2, 2, [
     "Write the same question three times until the real answer shows up",
     "Keep one promise to yourself before noon, no matter how small",
   ]);

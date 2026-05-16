@@ -13,6 +13,7 @@ import type { SessionState, StepId } from "./types";
 
 const EMPTY_SESSION: SessionState = {
   goals: "",
+  realization: undefined,
   suggestedFeelings: [],
   selectedFeelings: [],
   deserveReasons: "",
@@ -40,12 +41,13 @@ export default function App() {
         const res = await generateRewireResponse(goals, { mode: "full", goals });
         setSession({
           goals,
+          realization: res.realization,
           suggestedFeelings: res.feelings.length > 0 ? res.feelings : ["clarity", "self-trust", "calm"],
           selectedFeelings: [],
           deserveReasons: "",
           actions:
             res.actions.length > 0
-              ? res.actions
+              ? res.actions.slice(0, 2)
               : ["Notice what instantly drains your energy today"],
           customActions: [],
           completedActions: [],
@@ -118,7 +120,7 @@ export default function App() {
         deserveReasons: "",
         actions:
           res.actions.length > 0
-            ? res.actions
+            ? res.actions.slice(0, 2)
             : ["Keep one promise to yourself before noon, no matter how small"],
         customActions: [],
         completedActions: [],
@@ -150,6 +152,7 @@ export default function App() {
           {step === 2 && (
             <Step2Feelings
               key="s2"
+              realization={session.realization}
               suggested={session.suggestedFeelings}
               selected={session.selectedFeelings}
               onToggle={handleToggleFeeling}

@@ -12,8 +12,9 @@ Actions should feel like subtle psychological prompts (e.g. notice what drains e
 
 Always respond with valid JSON only, no markdown.`;
 
-const FULL_SCHEMA = `{"realization":"one short emotional realization","feelings":["3 to 5 short feeling labels, 1-2 words, lowercase"],"tasks":["2 to 4 suggested actions"]}`;
-const ACTIONS_SCHEMA = `{"tasks":["2 to 4 suggested actions"]}`;
+const FULL_SCHEMA = `{"realization":"one short emotional realization","feelings":["3 to 5 short feeling labels, 1-2 words, lowercase"],"tasks":["exactly 2 suggested actions"]}`;
+const ACTIONS_SCHEMA = `{"tasks":["exactly 2 suggested actions"]}`;
+const MAX_TASKS = 2;
 
 export type GenerateRequest = {
   mode?: "full" | "actions";
@@ -55,7 +56,7 @@ function parseResult(raw: string, mode: "full" | "actions") {
           return words.length <= 3 ? f : words.slice(0, 2).join(" ");
         });
 
-  const actions = normalizeList(parsed.tasks, 4, [
+  const actions = normalizeList(parsed.tasks, MAX_TASKS, [
     "Write the same question three times until the real answer shows up",
     "Keep one promise to yourself before noon, no matter how small",
   ]);
@@ -73,8 +74,8 @@ function buildUserMessage(body: GenerateRequest, mode: "full" | "actions"): stri
   }
   parts.push(
     mode === "actions"
-      ? `\nGenerate only new actions.\nOutput JSON:\n${ACTIONS_SCHEMA}`
-      : `\nGenerate realization, feeling chips, and tasks.\nOutput JSON:\n${FULL_SCHEMA}`,
+      ? `\nGenerate exactly 2 new actions (no more).\nOutput JSON:\n${ACTIONS_SCHEMA}`
+      : `\nGenerate realization, feeling chips, and exactly 2 tasks (no more).\nOutput JSON:\n${FULL_SCHEMA}`,
   );
   return parts.join("\n\n");
 }
