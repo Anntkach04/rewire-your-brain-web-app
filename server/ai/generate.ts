@@ -1,4 +1,10 @@
-import { ACTIONS_OUTPUT_SCHEMA, FULL_OUTPUT_SCHEMA, SYSTEM_PROMPT } from "./prompt";
+import { filterDesiredFeelings } from "../../lib/feeling-filter";
+import {
+  ACTIONS_OUTPUT_SCHEMA,
+  FEELINGS_USER_HINT,
+  FULL_OUTPUT_SCHEMA,
+  SYSTEM_PROMPT,
+} from "./prompt";
 
 export type GenerateMode = "full" | "actions";
 
@@ -40,7 +46,8 @@ function buildUserMessage(body: GenerateRequest): string {
   } else {
     parts.push(
       "\nGenerate a realization, feeling chip labels, and exactly 2 tasks, no more.",
-      `Output JSON:\n${FULL_OUTPUT_SCHEMA}`
+      FEELINGS_USER_HINT,
+      `Output JSON:\n${FULL_OUTPUT_SCHEMA}`,
     );
   }
 
@@ -76,13 +83,13 @@ function parseOpenAIContent(raw: string, mode: GenerateMode): GenerateResult {
   const feelings =
     mode === "actions"
       ? []
-      : feelingsFromTags
-          .map((f) => {
+      : filterDesiredFeelings(
+          feelingsFromTags.map((f) => {
             const words = f.split(/\s+/).filter(Boolean);
             if (words.length <= 3) return f;
             return words.slice(0, 2).join(" ");
-          })
-          .slice(0, 5);
+          }),
+        );
 
   const actions = normalizeList(parsed.tasks, 2, 2, [
     "Write the same question three times until the real answer shows up",

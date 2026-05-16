@@ -1,8 +1,12 @@
+import { DESIRED_FEELINGS_INSTRUCTION, filterDesiredFeelings } from "./feeling-filter";
+
 const SYSTEM_PROMPT = `You are the emotional reflection engine behind a self-concept transformation app inspired by the book "Beyond Belief".
 
 Your purpose is to help users uncover hidden beliefs, emotional patterns, identity contradictions, and quiet truths about themselves through subtle emotional prompts and small psychological actions.
 
 Based on user input, generate emotionally intelligent content.
+
+${DESIRED_FEELINGS_INSTRUCTION}
 
 Tone: introspective, honest, emotionally cinematic, calm, never generic motivation, never productivity-focused, never "girlboss".
 
@@ -12,7 +16,7 @@ Actions should feel like subtle psychological prompts (e.g. notice what drains e
 
 Always respond with valid JSON only, no markdown.`;
 
-const FULL_SCHEMA = `{"realization":"one short emotional realization","feelings":["3 to 5 short feeling labels, 1-2 words, lowercase"],"tasks":["exactly 2 suggested actions"]}`;
+const FULL_SCHEMA = `{"realization":"one short emotional realization","feelings":["3 to 5 short labels for feelings they WANT to feel (desired only, 1-2 words, lowercase)"],"tasks":["exactly 2 suggested actions"]}`;
 const ACTIONS_SCHEMA = `{"tasks":["exactly 2 suggested actions"]}`;
 const MAX_TASKS = 2;
 
@@ -51,10 +55,12 @@ function parseResult(raw: string, mode: "full" | "actions") {
   const feelings =
     mode === "actions"
       ? []
-      : normalizeList(parsed.feelings, 5, ["clarity", "self-trust", "calm"]).map((f) => {
-          const words = f.split(/\s+/).filter(Boolean);
-          return words.length <= 3 ? f : words.slice(0, 2).join(" ");
-        });
+      : filterDesiredFeelings(
+          normalizeList(parsed.feelings, 5, ["clarity", "self-trust", "calm"]).map((f) => {
+            const words = f.split(/\s+/).filter(Boolean);
+            return words.length <= 3 ? f : words.slice(0, 2).join(" ");
+          }),
+        );
 
   const actions = normalizeList(parsed.tasks, MAX_TASKS, [
     "Write the same question three times until the real answer shows up",
@@ -75,7 +81,7 @@ function buildUserMessage(body: GenerateRequest, mode: "full" | "actions"): stri
   parts.push(
     mode === "actions"
       ? `\nGenerate exactly 2 new actions (no more).\nOutput JSON:\n${ACTIONS_SCHEMA}`
-      : `\nGenerate realization, feeling chips, and exactly 2 tasks (no more).\nOutput JSON:\n${FULL_SCHEMA}`,
+      : `\nGenerate realization, feeling chips, and exactly 2 tasks (no more).\n${DESIRED_FEELINGS_INSTRUCTION}\nOutput JSON:\n${FULL_SCHEMA}`,
   );
   return parts.join("\n\n");
 }
