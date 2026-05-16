@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 
 type Props = {
+  realization?: string;
   suggested: string[];
   selected: string[];
   onToggle: (feeling: string) => void;
@@ -18,7 +19,14 @@ const TAG_PALETTES = [
   "from-lavender-mist to-lemon-soft",
 ];
 
-export function Step2Feelings({ suggested, selected, onToggle, onAdd, onContinue }: Props) {
+export function Step2Feelings({
+  realization,
+  suggested,
+  selected,
+  onToggle,
+  onAdd,
+  onContinue,
+}: Props) {
   const [custom, setCustom] = useState("");
   const [shake, setShake] = useState(false);
 
@@ -64,11 +72,16 @@ export function Step2Feelings({ suggested, selected, onToggle, onAdd, onContinue
         <span className="step-label">step 2</span>
         <h1 className="heading mt-3 text-balance">What do you actually want to feel?</h1>
         <p className="subtle font-inter-display mt-3 mx-auto max-w-[320px] text-balance">
-          You don&apos;t really want the goal — you want how it will make you feel.
+          You don&apos;t really want the goal, you want how it will make you feel.
           <br />
           <br />
           Choose the feeling you believe this goal will give you.
         </p>
+        {realization ? (
+          <p className="font-inter-display mx-auto mt-5 max-w-[320px] text-balance text-[15px] font-light leading-[1.6] tracking-[-0.02em] text-ink/90">
+            {realization}
+          </p>
+        ) : null}
       </div>
 
       <motion.div
