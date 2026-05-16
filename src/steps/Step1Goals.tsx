@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RewireCycleDiagram } from "../components/RewireCycleDiagram";
 
 type Props = {
   initialValue: string;
-  onActivate: (goals: string) => void;
+  onActivate: (goals: string) => void | Promise<void>;
 };
 
 const GOAL_EXAMPLES = [
@@ -18,6 +18,14 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
   const [activating, setActivating] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isActive, setIsActive] = useState(false);
+  const [apiOk, setApiOk] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    fetch("/api/generate", { cache: "no-cache" })
+      .then((r) => r.json())
+      .then((d: { ok?: boolean }) => setApiOk(Boolean(d.ok)))
+      .catch(() => setApiOk(false));
+  }, []);
 
   const showExamples = !value.trim() && !isActive;
 
@@ -28,10 +36,14 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
 
   const disabled = value.trim().length < 3 || activating;
 
-  function handleClick() {
-    if (disabled) return;
+  async function handleClick() {
+    if (disabled || activating) return;
     setActivating(true);
-    setTimeout(() => onActivate(value.trim()), 900);
+    try {
+      await onActivate(value.trim());
+    } finally {
+      setActivating(false);
+    }
   }
 
   return (
@@ -65,6 +77,19 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
         <p className="font-inter-display mt-2 w-full text-center text-ink">
           (one goal at a time works best)
         </p>
+
+        {apiOk === false ? (
+          <p className="font-inter-display mt-3 w-full rounded-[12px] border border-peach-deep/35 bg-white/55 px-3 py-2 text-center text-[12px] font-light leading-snug text-ink/90">
+            AI offline on this tab — run{" "}
+            <code className="text-[11px]">npm run start</code> in the project folder, or use{" "}
+            <strong className="font-normal">rewire-your-brain.vercel.app</strong>
+          </p>
+        ) : null}
+        {apiOk === true ? (
+          <p className="font-inter-display mt-2 text-center text-[11px] font-light text-ink/50">
+            AI connected
+          </p>
+        ) : null}
 
         <motion.div
           className="glass-field grain relative mt-6 flex h-[184px] w-full shrink-0 flex-col rounded-[14px] p-4"
