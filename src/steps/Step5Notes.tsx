@@ -117,11 +117,15 @@ export function Step5Notes({ session, onRestart }: Props) {
         </button>
       </div>
 
-      <div className="mt-4 pb-2">
+      <div className="mt-4">
         <button type="button" onClick={onRestart} className="btn-ghost w-full max-w-none font-display text-[18px] font-normal">
           Add another goal
         </button>
       </div>
+
+      <p className="font-inter-display mt-3 pb-2 w-full text-center text-ink">
+        (2–3 goals a day works best)
+      </p>
     </motion.section>
   );
 }

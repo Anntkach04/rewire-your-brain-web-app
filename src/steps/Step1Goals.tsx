@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useRef, useState } from "react";
 import { RewireCycleDiagram } from "../components/RewireCycleDiagram";
 
 type Props = {
@@ -16,9 +16,15 @@ const GOAL_EXAMPLES = [
 export function Step1Goals({ initialValue, onActivate }: Props) {
   const [value, setValue] = useState(initialValue);
   const [activating, setActivating] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isActive, setIsActive] = useState(false);
 
-  const showExamples = !value.trim() && !isFocused;
+  const showExamples = !value.trim() && !isActive;
+
+  function activateField() {
+    setIsActive(true);
+    textareaRef.current?.focus();
+  }
 
   const disabled = value.trim().length < 3 || activating;
 
@@ -60,27 +66,41 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
           (one goal at a time works best)
         </p>
 
-        <motion.div className="glass-field grain relative mt-6 flex h-[184px] w-full shrink-0 flex-col rounded-[14px] p-4">
-          {showExamples ? (
-            <motion.div
-              className="pointer-events-none absolute inset-0 flex flex-col gap-[10px] p-4 text-left"
-              aria-hidden
-            >
-              {GOAL_EXAMPLES.map((line) => (
-                <p
-                  key={line}
-                  className="font-inter-display m-0 text-[11px] font-light leading-[18px] tracking-[-0.02em] text-ink/50"
-                >
-                  {line}
-                </p>
-              ))}
-            </motion.div>
-          ) : null}
+        <motion.div
+          className="glass-field grain relative mt-6 flex h-[184px] w-full shrink-0 flex-col rounded-[14px] p-4"
+          onPointerDown={activateField}
+        >
+          <AnimatePresence>
+            {showExamples ? (
+              <motion.div
+                key="examples"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="pointer-events-none absolute inset-0 flex flex-col gap-[10px] p-4 text-left"
+                aria-hidden
+              >
+                {GOAL_EXAMPLES.map((line) => (
+                  <p
+                    key={line}
+                    className="font-inter-display m-0 text-[11px] font-light leading-[18px] tracking-[-0.02em] text-ink/50"
+                  >
+                    {line}
+                  </p>
+                ))}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
           <textarea
+            ref={textareaRef}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onChange={(e) => {
+              setIsActive(true);
+              setValue(e.target.value);
+            }}
+            onFocus={() => setIsActive(true)}
+            onBlur={() => setIsActive(false)}
             className="goals-field font-inter-display relative z-[1] h-full min-h-0 w-full min-w-0 flex-1 resize-none bg-transparent text-left text-ink caret-ink outline-none selection:bg-ink/10"
             aria-label="Your goal or dream"
           />
