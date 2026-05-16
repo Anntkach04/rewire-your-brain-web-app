@@ -6,8 +6,8 @@ const CY = SIZE / 2;
 const R = 86;
 const labelR = 138;
 
-const fs = 18;
-const centerFs = 17;
+const fs = 20;
+const centerFs = 19;
 const serif = '"Instrument Serif", ui-serif, serif';
 
 const NODE_SPOTS = [
@@ -50,6 +50,13 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             <feGaussianBlur stdDeviation="1.2" result="b" />
             <feMerge>
               <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="rewire-dot-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="3.5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
@@ -140,21 +147,13 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
 
           <text
             x={0}
-            y={-9}
+            y={4}
             textAnchor="middle"
+            dominantBaseline="middle"
             fill="#202020"
             style={{ fontSize: centerFs, fontFamily: serif }}
           >
-            repeat
-          </text>
-          <text
-            x={0}
-            y={11}
-            textAnchor="middle"
-            fill="#202020"
-            style={{ fontSize: centerFs, fontFamily: serif }}
-          >
-            → believe
+            brain loop
           </text>
 
           <text
@@ -165,7 +164,7 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             fill="#202020"
             style={{ fontSize: fs, fontFamily: serif }}
           >
-            goals
+            goal
           </text>
           <text
             x={labelR + 5}
@@ -175,7 +174,7 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             fill="#202020"
             style={{ fontSize: fs, fontFamily: serif }}
           >
-            feelings
+            feel
           </text>
           <text
             x={0}
@@ -185,7 +184,7 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             fill="#202020"
             style={{ fontSize: fs, fontFamily: serif }}
           >
-            actions
+            validate
           </text>
           <text
             x={-labelR - 5}
@@ -195,7 +194,7 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
             fill="#202020"
             style={{ fontSize: fs, fontFamily: serif }}
           >
-            beliefs
+            act
           </text>
         </g>
       </svg>

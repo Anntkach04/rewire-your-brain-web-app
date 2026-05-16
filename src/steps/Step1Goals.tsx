@@ -7,9 +7,9 @@ type Props = {
   onActivate: (goals: string) => void;
 };
 
-const PLACEHOLDER = `I want to move abroad
-I want financial freedom
-I want to feel attractive`;
+const PLACEHOLDER = `I want to be in a loving, secure relationship
+I want to grow my audience to 1M followers
+I want to publish my first book`;
 
 export function Step1Goals({ initialValue, onActivate }: Props) {
   const [value, setValue] = useState(initialValue);
@@ -35,12 +35,10 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
       <div className="flex w-full shrink-0 flex-col items-center text-center">
         <p className="step-label">step 1</p>
         <h1 className="font-display mt-4 w-full max-w-none text-center text-balance text-[53px] font-normal leading-[1.08] tracking-[-0.02em] text-ink">
-          Rewire your brain
+          Rewire Your Brain
         </h1>
         <p className="font-inter-display mt-4 w-full max-w-none px-1 text-center text-balance text-ink">
-          Turn your goals into feelings
-          <br />
-          you can start living now.
+          into creating your dream life
         </p>
       </div>
 
@@ -51,8 +49,11 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
       {/* Bottom cluster: pinned to lower area; 24px before field, 32px before CTA */}
       <div className="flex w-full shrink-0 flex-col items-center text-center">
         <h2 className="font-display w-full max-w-none text-balance text-[32px] font-normal leading-[1.15] tracking-[-0.01em] text-ink">
-          Start with one goal or dream
+          Start with one specific goal
         </h2>
+        <p className="font-inter-display mt-2 w-full text-center text-ink">
+          (one goal at a time works best)
+        </p>
 
         <motion.div className="glass-field grain relative mt-6 flex h-[184px] w-full shrink-0 flex-col rounded-[14px] p-4">
           <textarea
@@ -74,7 +75,7 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
             aria-busy={activating}
           >
             <span className="btn-primary-glass__label">
-              {activating ? "Rewiring…" : "Rewire my brain"}
+              {activating ? "Rewiring…" : "Rewire this Goal →"}
             </span>
           </motion.button>
         </div>
