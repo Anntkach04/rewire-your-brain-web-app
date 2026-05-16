@@ -62,9 +62,12 @@ export function Step2Feelings({ suggested, selected, onToggle, onAdd, onContinue
     >
       <div className="text-center">
         <span className="step-label">step 2</span>
-        <h1 className="heading mt-3 text-balance">What feelings are behind them?</h1>
+        <h1 className="heading mt-3 text-balance">What do you actually want to feel?</h1>
         <p className="subtle font-inter-display mt-3 mx-auto max-w-[320px] text-balance">
-          Your brain is chasing emotions — not outcomes. Tap the ones that feel close.
+          You don&apos;t really want the goal — you want how it will make you feel.
+          <br />
+          <br />
+          Choose the feeling you believe this goal will give you.
         </p>
       </div>
 
@@ -145,7 +148,7 @@ export function Step2Feelings({ suggested, selected, onToggle, onAdd, onContinue
           className="btn-primary w-full max-w-none"
           aria-disabled={selected.length === 0}
         >
-          Why do I want this?
+          continue →
         </button>
       </div>
     </motion.section>
