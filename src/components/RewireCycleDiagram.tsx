@@ -4,7 +4,18 @@ const SIZE = 320;
 const CX = SIZE / 2;
 const CY = SIZE / 2;
 const R = 86;
-const labelR = 128;
+/** Distance from center to label anchor (same for every stage). */
+const LABEL_R = 130;
+/** Extra push outward along each label's radial line. */
+const LABEL_OUTWARD = 12;
+/** Longer words get a bit more radial room so they don't crowd the ring. */
+const LABEL_RADIAL_EXTRA: Record<(typeof STAGES)[number], number> = {
+  goal: 2,
+  feel: 4,
+  validate: 10,
+  act: 2,
+  become: 6,
+};
 
 const fs = 23;
 const centerFs = 22;
@@ -32,24 +43,40 @@ function arcBetween(radius: number, fromIndex: number) {
   return `M ${from.x} ${from.y} A ${radius} ${radius} 0 0 1 ${to.x} ${to.y}`;
 }
 
-function labelLayout(index: number) {
-  const { x, y, angle } = spotAt(labelR, index);
+type LabelLayout = {
+  x: number;
+  y: number;
+  textAnchor: "start" | "middle" | "end";
+  dominantBaseline: "middle" | "hanging" | "alphabetic";
+};
+
+/** Place labels on a circle; anchor + baseline so text sits outside the ring evenly. */
+function labelLayout(index: number): LabelLayout {
+  const angle = START_ANGLE + (index * 2 * Math.PI) / STAGE_COUNT;
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
+  const r = LABEL_R + LABEL_OUTWARD + LABEL_RADIAL_EXTRA[STAGES[index]];
+  const x = r * cos;
+  const y = r * sin;
 
-  if (Math.abs(cos) > Math.abs(sin)) {
-    return {
-      x: x + (cos > 0 ? 6 : -6),
-      y,
-      textAnchor: cos > 0 ? ("start" as const) : ("end" as const),
-    };
+  // Top — baseline on ring side, glyphs grow outward (up)
+  if (sin < -0.45) {
+    return { x, y, textAnchor: "middle", dominantBaseline: "alphabetic" };
+  }
+  // Bottom — top of em box on ring side, text grows outward (down)
+  if (sin > 0.45) {
+    return { x, y, textAnchor: "middle", dominantBaseline: "hanging" };
+  }
+  // Right — text grows outward (+x)
+  if (cos > 0.35) {
+    return { x, y, textAnchor: "start", dominantBaseline: "middle" };
+  }
+  // Left — text grows outward (-x)
+  if (cos < -0.35) {
+    return { x, y, textAnchor: "end", dominantBaseline: "middle" };
   }
 
-  return {
-    x,
-    y: y + (sin > 0 ? 10 : -10),
-    textAnchor: "middle" as const,
-  };
+  return { x, y, textAnchor: "middle", dominantBaseline: "middle" };
 }
 
 const NODE_SPOTS = STAGES.map((key, i) => ({
@@ -189,14 +216,14 @@ export function RewireCycleDiagram({ className = "" }: { className?: string }) {
           </text>
 
           {STAGES.map((label, i) => {
-            const { x, y, textAnchor } = labelLayout(i);
+            const { x, y, textAnchor, dominantBaseline } = labelLayout(i);
             return (
               <text
                 key={label}
                 x={x}
                 y={y}
                 textAnchor={textAnchor}
-                dominantBaseline="middle"
+                dominantBaseline={dominantBaseline}
                 fill="#202020"
                 style={{ fontSize: fs, fontFamily: serif }}
               >
