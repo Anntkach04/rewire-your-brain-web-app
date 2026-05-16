@@ -28,11 +28,10 @@ function curlyQuoted(text: string): string {
   return `${OPEN_QUOTE}${t}${CLOSE_QUOTE}`;
 }
 
-/** Italic text in curly quotes — Apple Notes respects <em> from clipboard HTML */
 function quotedItalicHtml(text: string): string {
   const t = trimBody(text);
   const inner = t ? escapeHtml(t) : "";
-  return `<em style="font-style:italic;font-family:Georgia,'Times New Roman',serif;">${OPEN_QUOTE}${inner}${CLOSE_QUOTE}</em>`;
+  return `<em style="font-style:italic;">${OPEN_QUOTE}${inner}${CLOSE_QUOTE}</em>`;
 }
 
 export function formatNotesExportDate(date = new Date()): string {
@@ -49,19 +48,26 @@ export function formatNotesExportDate(date = new Date()): string {
   return `${day} at ${time}`;
 }
 
+/**
+ * Export layout (each block separated by one blank line):
+ * date → title → [subheading → body italic]×n → actions subheading → bullets
+ */
 export function buildNotesPlainText(session: SessionState, actions: string[]): string {
-  const lines = [
+  const sections: string[] = [
     formatNotesExportDate(),
     "",
     EXPORT_TITLE,
     "",
     "What I want:",
+    "",
     curlyQuoted(session.goals),
     "",
     "Feelings behind it:",
+    "",
     curlyQuoted(formatFeelings(session.selectedFeelings)),
     "",
     "Why I deserve to feel this way:",
+    "",
     curlyQuoted(session.deserveReasons),
     "",
     "Actions to feel more this way:",
@@ -69,30 +75,39 @@ export function buildNotesPlainText(session: SessionState, actions: string[]): s
   ];
 
   if (actions.length === 0) {
-    lines.push(`${BULLET} `);
+    sections.push(`${BULLET} `);
   } else {
-    actions.forEach((a) => lines.push(`${BULLET} ${trimBody(a)}`));
+    actions.forEach((a, i) => {
+      sections.push(`${BULLET} ${trimBody(a)}`);
+      if (i < actions.length - 1) sections.push("");
+    });
   }
 
-  return lines.join("\n").trimEnd() + "\n";
+  return sections.join("\n").trimEnd() + "\n";
 }
 
-const HEADING_STYLE =
-  "margin:14px 0 4px 0;font-size:17px;font-weight:bold;font-family:-apple-system,Helvetica,sans-serif;color:#000000;";
+const DATE_STYLE =
+  "margin:0 0 16px 0;font-size:13px;font-weight:normal;color:#8E8E93;font-family:-apple-system,Helvetica,sans-serif;";
+const TITLE_STYLE =
+  "margin:0 0 16px 0;font-size:22px;font-weight:bold;color:#000000;font-family:-apple-system,Helvetica,sans-serif;";
+const SUBHEAD_STYLE =
+  "margin:0 0 16px 0;font-size:17px;font-weight:bold;color:#000000;font-family:-apple-system,Helvetica,sans-serif;";
 const BODY_STYLE =
-  "margin:0 0 10px 0;font-size:17px;line-height:1.45;font-family:-apple-system,Helvetica,sans-serif;color:#000000;";
+  "margin:0 0 16px 0;font-size:17px;font-weight:normal;line-height:1.4;color:#000000;font-family:-apple-system,Helvetica,sans-serif;";
+const BULLET_STYLE =
+  "margin:0 0 8px 0;font-size:17px;font-weight:normal;line-height:1.4;color:#000000;font-family:-apple-system,Helvetica,sans-serif;";
 
-function htmlSection(heading: string, body: string): string {
-  return `<p style="${HEADING_STYLE}">${escapeHtml(heading)}</p>
+function htmlSubsection(heading: string, body: string): string {
+  return `<p style="${SUBHEAD_STYLE}">${escapeHtml(heading)}</p>
 <p style="${BODY_STYLE}">${quotedItalicHtml(body)}</p>`;
 }
 
 function htmlBulletLine(text: string): string {
-  return `<p style="margin:0 0 6px 0;font-size:17px;line-height:1.45;font-family:-apple-system,Helvetica,sans-serif;color:#000000;">${BULLET}&nbsp;${escapeHtml(trimBody(text))}</p>`;
+  return `<p style="${BULLET_STYLE}">${BULLET}&nbsp;${escapeHtml(trimBody(text))}</p>`;
 }
 
 export function buildNotesHtml(session: SessionState, actions: string[]): string {
-  const actionBlock =
+  const bullets =
     actions.length > 0
       ? actions.map((a) => htmlBulletLine(a)).join("")
       : htmlBulletLine("");
@@ -100,14 +115,14 @@ export function buildNotesHtml(session: SessionState, actions: string[]): string
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,Helvetica,sans-serif;color:#000000;">
-<p style="font-size:13px;color:#8E8E93;margin:0 0 12px 0;">${escapeHtml(formatNotesExportDate())}</p>
-<p style="font-size:22px;font-weight:bold;margin:0 0 14px 0;">${escapeHtml(EXPORT_TITLE)}</p>
-${htmlSection("What I want:", session.goals)}
-${htmlSection("Feelings behind it:", formatFeelings(session.selectedFeelings))}
-${htmlSection("Why I deserve to feel this way:", session.deserveReasons)}
-<p style="${HEADING_STYLE}">Actions to feel more this way:</p>
-${actionBlock}
+<body style="margin:0;padding:0;">
+<p style="${DATE_STYLE}">${escapeHtml(formatNotesExportDate())}</p>
+<p style="${TITLE_STYLE}">${escapeHtml(EXPORT_TITLE)}</p>
+${htmlSubsection("What I want:", session.goals)}
+${htmlSubsection("Feelings behind it:", formatFeelings(session.selectedFeelings))}
+${htmlSubsection("Why I deserve to feel this way:", session.deserveReasons)}
+<p style="${SUBHEAD_STYLE}">Actions to feel more this way:</p>
+${bullets}
 </body>
 </html>`;
 }
