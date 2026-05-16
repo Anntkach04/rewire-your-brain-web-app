@@ -49,13 +49,13 @@ export function Step3Reflection({ selectedFeelings, value, onChange, onContinue 
               className="pointer-events-none absolute inset-0 flex flex-col gap-[10px] p-4 text-left"
               aria-hidden
             >
-              <p className="font-inter-display m-0 text-[11px] font-normal uppercase tracking-[0.06em] text-ink/40">
+              <p className="font-inter-display m-0 text-[10px] font-normal uppercase tracking-[0.06em] text-ink/40">
                 examples
               </p>
               {REFLECTION_EXAMPLES.map((line) => (
                 <p
                   key={line}
-                  className="font-inter-display m-0 text-[13px] font-light leading-[20px] tracking-[-0.02em] text-ink/50"
+                  className="font-inter-display m-0 text-[11px] font-light leading-[18px] tracking-[-0.02em] text-ink/50"
                 >
                   {line}
                 </p>
@@ -69,7 +69,7 @@ export function Step3Reflection({ selectedFeelings, value, onChange, onContinue 
             aria-label="Evidence that you already feel this way"
           />
         </motion.div>
-      </motion.div>
+      </div>
 
       <div className="mt-auto shrink-0 pt-8">
         <button type="button" onClick={onContinue} disabled={!canContinue} className="btn-primary w-full max-w-none">

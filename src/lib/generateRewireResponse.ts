@@ -142,45 +142,63 @@ function pickActions(feelings: FeelingKey[]): string[] {
   return picked.slice(0, 2);
 }
 
+function apiUrl(): string {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return `${window.location.origin}/api/generate`;
+  }
+  return "/api/generate";
+}
+
 async function generateWithApi(
   goals: string,
   context: GenerateContext
 ): Promise<RewireResponse | null> {
   const mode = context.mode ?? "full";
+  const payload = JSON.stringify({
+    mode,
+    goals,
+    selectedFeelings: context.selectedFeelings,
+    deserveReasons: context.deserveReasons,
+  });
 
-  try {
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mode,
-        goals,
-        selectedFeelings: context.selectedFeelings,
-        deserveReasons: context.deserveReasons,
-      }),
-    });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 45_000);
 
-    if (!response.ok) {
-      if (import.meta.env.DEV) {
-        console.warn("[generate] API error", response.status, await response.text());
+    try {
+      const response = await fetch(apiUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        cache: "no-store",
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.warn("[generate] API error", response.status, errText.slice(0, 120));
+        continue;
       }
-      return null;
-    }
 
-    const data = (await response.json()) as RewireResponse;
-    if (!Array.isArray(data.actions) || data.actions.length === 0) return null;
-    if (mode === "full" && (!Array.isArray(data.feelings) || data.feelings.length === 0)) {
-      return null;
-    }
+      const data = (await response.json()) as RewireResponse;
+      if (!Array.isArray(data.actions) || data.actions.length === 0) continue;
+      if (mode === "full" && (!Array.isArray(data.feelings) || data.feelings.length === 0)) {
+        continue;
+      }
 
-    return {
-      feelings: data.feelings ?? [],
-      actions: data.actions,
-      realization: data.realization,
-    };
-  } catch {
-    return null;
+      return {
+        feelings: data.feelings ?? [],
+        actions: data.actions,
+        realization: data.realization,
+      };
+    } catch (error) {
+      console.warn("[generate] API request failed", error);
+    } finally {
+      window.clearTimeout(timeout);
+    }
   }
+
+  return null;
 }
 
 function generateMock(input: string, context: GenerateContext): RewireResponse {
@@ -203,7 +221,8 @@ export async function generateRewireResponse(
   const fromApi = await generateWithApi(goals, context);
   if (fromApi) return fromApi;
 
-  await new Promise((r) => setTimeout(r, 900));
+  console.warn("[generate] Using offline fallback — API unreachable or invalid response");
+  await new Promise((r) => setTimeout(r, 600));
   return generateMock(input, context);
 }
 

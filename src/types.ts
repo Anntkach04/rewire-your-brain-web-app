@@ -7,6 +7,8 @@ export type RewireResponse = {
 
 export type SessionState = {
   goals: string;
+  /** One-line AI realization shown on step 2 */
+  realization?: string;
   suggestedFeelings: string[];
   selectedFeelings: string[];
   /** Step 3 — user-written reasons they deserve the feeling */

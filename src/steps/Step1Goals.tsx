@@ -66,7 +66,7 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
               {GOAL_EXAMPLES.map((line) => (
                 <p
                   key={line}
-                  className="font-inter-display m-0 text-[13px] font-light leading-[20px] tracking-[-0.02em] text-ink/50"
+                  className="font-inter-display m-0 text-[11px] font-light leading-[18px] tracking-[-0.02em] text-ink/50"
                 >
                   {line}
                 </p>

@@ -19,6 +19,7 @@
     "vite-plugin-api.ts",
     "middleware.ts",
     "lib/**/*.ts",
+    "lib/feeling-filter.ts",
     "api/**/*.ts",
     "server/**/*.ts"
   ]
