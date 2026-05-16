@@ -1,12 +1,12 @@
 import { getSelectedActions } from "./sessionActions";
 import type { SessionState } from "../types";
 
-/** Ballot box — Apple Notes often turns lines starting with this into a checklist */
-const CHECKBOX = "\u2610";
+const BULLET = "\u2022";
 const EXPORT_TITLE = "\uD83E\uDDE0 Rewired thoughts";
 const OPEN_QUOTE = "\u201C";
 const CLOSE_QUOTE = "\u201D";
-const BLOCK_GAP = "\n\n\n";
+/** Big gaps between blocks — plain text paste into Notes keeps these newlines */
+const BLOCK_GAP = "\n\n\n\n";
 
 function escapeHtml(s: string): string {
   return s
@@ -56,17 +56,27 @@ function plainSection(heading: string, body: string): string {
   return `${heading}\n\n${curlyQuoted(body)}`;
 }
 
-function htmlSpacer(): string {
-  return `<p style="margin:0;padding:0;line-height:18px;font-size:18px;">&nbsp;</p>`;
+function htmlGap(): string {
+  return "<br><br><br><br>";
 }
 
 function htmlSection(heading: string, body: string): string {
-  return `${htmlSpacer()}<h2 style="font-size:17px;font-weight:bold;margin:0 0 0.5em;color:#000000;">${escapeHtml(heading)}</h2>
-<p style="font-size:17px;font-weight:normal;margin:0 0 0.25em;line-height:1.5;color:#000000;">${curlyQuotedItalicHtml(body)}</p>`;
+  return `${htmlGap()}<p style="font-size:17px;font-weight:bold;margin:0;color:#000000;">${escapeHtml(heading)}</p>${htmlGap()}<p style="font-size:17px;font-weight:normal;margin:0;line-height:2;color:#000000;">${curlyQuotedItalicHtml(body)}</p>`;
 }
 
-function htmlChecklistItem(text: string): string {
-  return `<p style="font-size:17px;margin:0.85em 0 0;line-height:1.5;color:#000000;">${CHECKBOX}&nbsp;${escapeHtml(trimBody(text))}</p>`;
+function htmlActionList(actions: string[]): string {
+  if (actions.length === 0) {
+    return `<p style="font-size:17px;margin:0;line-height:2;">${BULLET}&nbsp;</p>`;
+  }
+
+  const items = actions
+    .map(
+      (a) =>
+        `<li style="font-size:17px;line-height:2;margin:0 0 1.5em 0;padding:0;">${escapeHtml(trimBody(a))}</li>`,
+    )
+    .join("");
+
+  return `${htmlGap()}<ul style="margin:0;padding:0 0 0 1.25em;list-style-type:disc;">${items}</ul>`;
 }
 
 export function buildNotesPlainText(session: SessionState, actions: string[]): string {
@@ -83,41 +93,33 @@ export function buildNotesPlainText(session: SessionState, actions: string[]): s
   ];
 
   if (actions.length === 0) {
-    blocks.push(`${CHECKBOX} `);
+    blocks.push(`${BULLET} `);
   } else {
-    actions.forEach((a, i) => {
-      if (i > 0) blocks.push("");
-      blocks.push(`${CHECKBOX} ${trimBody(a)}`);
-    });
+    blocks.push(actions.map((a) => `${BULLET} ${trimBody(a)}`).join(BLOCK_GAP));
   }
 
   return blocks.join(BLOCK_GAP).trimEnd() + "\n";
 }
 
 export function buildNotesHtml(session: SessionState, actions: string[]): string {
-  const actionItems =
-    actions.length > 0
-      ? `${htmlSpacer()}${actions.map((a) => htmlChecklistItem(a)).join("")}`
-      : htmlChecklistItem("");
-
   const body = [
-    `<p style="font-size:13px;color:#8E8E93;margin:0 0 0.25em;">${escapeHtml(formatNotesExportDate())}</p>`,
-    htmlSpacer(),
-    `<h1 style="font-size:28px;font-weight:bold;margin:0;line-height:1.2;color:#000000;">${escapeHtml(EXPORT_TITLE)}</h1>`,
+    `<p style="font-size:13px;color:#8E8E93;margin:0;">${escapeHtml(formatNotesExportDate())}</p>`,
+    htmlGap(),
+    `<p style="font-size:28px;font-weight:bold;margin:0;line-height:1.25;color:#000000;">${escapeHtml(EXPORT_TITLE)}</p>`,
     htmlSection("What I want:", session.goals),
     htmlSection("Feelings behind it:", formatFeelings(session.selectedFeelings)),
     htmlSection("Why I deserve to feel this way:", session.deserveReasons),
-    `${htmlSpacer()}<h2 style="font-size:17px;font-weight:bold;margin:0 0 0.5em;color:#000000;">Actions to feel more this way:</h2>`,
-    actionItems,
+    `${htmlGap()}<p style="font-size:17px;font-weight:bold;margin:0;color:#000000;">Actions to feel more this way:</p>`,
+    htmlActionList(actions),
+    htmlGap(),
   ].join("");
 
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="Generator" content="Rewire Your Brain">
 </head>
-<body style="font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Helvetica,sans-serif;color:#000000;margin:0;padding:0;">
+<body style="font-family:-apple-system,BlinkMacSystemFont,Helvetica,sans-serif;color:#000000;">
 ${body}
 </body>
 </html>`;
@@ -126,25 +128,6 @@ ${body}
 function extractBodyHtml(html: string): string {
   const match = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
   return match ? match[1] : html;
-}
-
-/** CF_HTML wrapper — improves paste into Apple Notes on iOS/macOS */
-function wrapCfHtml(html: string): string {
-  const inner = extractBodyHtml(html);
-  const start = "<!--StartFragment-->";
-  const end = "<!--EndFragment-->";
-  const fragment = start + inner + end;
-  const full = `<!DOCTYPE html><html><body>${fragment}</body></html>`;
-  const startHtml = full.indexOf(start);
-  const endHtml = full.indexOf(end) + end.length;
-  const pad = (n: number) => String(n).padStart(10, "0");
-  const header =
-    "Version:0.9\r\n" +
-    `StartHTML:${pad(0)}\r\n` +
-    `EndHTML:${pad(full.length)}\r\n` +
-    `StartFragment:${pad(startHtml)}\r\n` +
-    `EndFragment:${pad(endHtml)}\r\n`;
-  return header + full;
 }
 
 function copyViaHiddenElement(html: string): boolean {
@@ -181,9 +164,7 @@ export async function copyNotesToClipboard(session: SessionState): Promise<boole
   const actions = getSelectedActions(session);
   const plain = buildNotesPlainText(session, actions);
   const html = buildNotesHtml(session, actions);
-  const cfHtml = wrapCfHtml(html);
 
-  // iOS Safari pastes rich text more reliably from a selected DOM node
   if (copyViaHiddenElement(html)) {
     return true;
   }
@@ -192,7 +173,7 @@ export async function copyNotesToClipboard(session: SessionState): Promise<boole
     if (typeof ClipboardItem !== "undefined" && navigator.clipboard.write) {
       await navigator.clipboard.write([
         new ClipboardItem({
-          "text/html": new Blob([cfHtml], { type: "text/html" }),
+          "text/html": new Blob([html], { type: "text/html" }),
           "text/plain": new Blob([plain], { type: "text/plain" }),
         }),
       ]);
