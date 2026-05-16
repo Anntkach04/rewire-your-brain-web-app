@@ -17,9 +17,33 @@ export function apiPlugin(env: Record<string, string>): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith("/api/generate")) return next();
+
+        if (req.method === "GET") {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.end(
+            JSON.stringify({
+              ok: true,
+              message: "Rewire API (dev). POST { mode, goals }.",
+            }),
+          );
+          return;
+        }
+
         if (req.method !== "POST") {
           res.statusCode = 405;
           res.end("Method not allowed");
+          return;
+        }
+
+        if (!env.OPENAI_API_KEY) {
+          res.statusCode = 503;
+          res.setHeader("Content-Type", "application/json");
+          res.end(
+            JSON.stringify({
+              error: "OPENAI_API_KEY missing — add it to .env in the project folder",
+            }),
+          );
           return;
         }
 

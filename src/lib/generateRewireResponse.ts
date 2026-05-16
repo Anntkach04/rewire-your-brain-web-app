@@ -1,5 +1,13 @@
-import { GOAL_ACTION_PATTERNS, sanitizeActions } from "../../lib/sanitize-actions";
+import { sanitizeActions } from "../../lib/sanitize-actions";
 import type { RewireResponse } from "../types";
+
+type ApiPayload = {
+  feelings?: string[];
+  actions?: string[];
+  tasks?: string[];
+  realization?: string;
+  error?: string;
+};
 
 export type GenerateContext = {
   mode?: "full" | "actions";
@@ -122,7 +130,12 @@ function pickFeelings(input: string): FeelingKey[] {
 function pickGoalActions(goals: string): string[] {
   const picked: string[] = [];
   const lower = goals.toLowerCase();
-  for (const [pattern, action] of GOAL_ACTION_PATTERNS) {
+  const patterns: Array<[RegExp, string]> = [
+    [/\b(instagram|insta|reels?|tiktok|youtube|followers?|influencer)\b/i, "Post one video on Instagram"],
+    [/\b(10k steps|steps|walk|run|fitness|gym)\b/i, "Get 10k steps today"],
+    [/\b(water|hydrat)\b/i, "Drink 2.5L water today"],
+  ];
+  for (const [pattern, action] of patterns) {
     if (pattern.test(lower) && !picked.includes(action)) {
       picked.push(action);
     }
@@ -162,6 +175,46 @@ function apiUrl(): string {
   return "/api/generate";
 }
 
+function parseApiPayload(raw: string, mode: "full" | "actions"): RewireResponse | null {
+  const trimmed = raw.trim();
+  if (!trimmed.startsWith("{")) {
+    console.warn("[generate] Non-JSON response (got HTML?) — first chars:", trimmed.slice(0, 40));
+    return null;
+  }
+
+  let data: ApiPayload;
+  try {
+    data = JSON.parse(trimmed) as ApiPayload;
+  } catch {
+    console.warn("[generate] JSON parse failed");
+    return null;
+  }
+
+  if (data.error) {
+    console.warn("[generate] API error:", data.error);
+    return null;
+  }
+
+  const actionsRaw = data.actions ?? data.tasks ?? [];
+  const actions = Array.isArray(actionsRaw)
+    ? actionsRaw.map((a) => (typeof a === "string" ? a.trim() : "")).filter(Boolean)
+    : [];
+
+  if (actions.length === 0) return null;
+
+  const feelings = Array.isArray(data.feelings)
+    ? data.feelings.map((f) => (typeof f === "string" ? f.trim() : "")).filter(Boolean)
+    : [];
+
+  if (mode === "full" && feelings.length === 0) return null;
+
+  return {
+    feelings,
+    actions,
+    realization: typeof data.realization === "string" ? data.realization : undefined,
+  };
+}
+
 async function generateWithApi(
   goals: string,
   context: GenerateContext
@@ -181,31 +234,33 @@ async function generateWithApi(
     try {
       const response = await fetch(apiUrl(), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: payload,
         cache: "no-store",
+        credentials: "same-origin",
         signal: controller.signal,
       });
 
+      const raw = await response.text();
+
       if (!response.ok) {
-        const errText = await response.text();
-        console.warn("[generate] API error", response.status, errText.slice(0, 120));
+        console.warn("[generate] API error", response.status, raw.slice(0, 120));
         continue;
       }
 
-      const data = (await response.json()) as RewireResponse;
-      if (!Array.isArray(data.actions) || data.actions.length === 0) continue;
-      if (mode === "full" && (!Array.isArray(data.feelings) || data.feelings.length === 0)) {
-        continue;
-      }
+      const parsed = parseApiPayload(raw, mode);
+      if (!parsed) continue;
 
       return {
-        feelings: data.feelings ?? [],
-        actions: sanitizeActions(data.actions, {
+        feelings: parsed.feelings,
+        actions: sanitizeActions(parsed.actions, {
           goals,
           feelings: context.selectedFeelings,
         }),
-        realization: data.realization,
+        realization: parsed.realization,
       };
     } catch (error) {
       console.warn("[generate] API request failed", error);

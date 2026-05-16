@@ -96,28 +96,45 @@ function buildUserMessage(body: GenerateRequest, mode: "full" | "actions"): stri
   return parts.join("\n\n");
 }
 
+const JSON_HEADERS = {
+  "Cache-Control": "no-store",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 /** Shared handler for /api/generate (Vercel middleware + optional api route). */
 export async function handleGenerateRequest(request: Request): Promise<Response> {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: JSON_HEADERS });
+  }
+
   if (request.method === "GET") {
-    return Response.json({
-      ok: true,
-      message: "Rewire API is live. Send POST with { mode, goals }.",
-    });
+    return Response.json(
+      {
+        ok: true,
+        message: "Rewire API is live. Send POST with { mode, goals }.",
+      },
+      { headers: JSON_HEADERS },
+    );
   }
 
   if (request.method !== "POST") {
-    return Response.json({ error: "Method not allowed" }, { status: 405 });
+    return Response.json({ error: "Method not allowed" }, { status: 405, headers: JSON_HEADERS });
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return Response.json({ error: "OPENAI_API_KEY is not configured" }, { status: 500 });
+    return Response.json(
+      { error: "OPENAI_API_KEY is not configured" },
+      { status: 500, headers: JSON_HEADERS },
+    );
   }
 
   try {
     const body = (await request.json()) as GenerateRequest;
     if (!body?.goals?.trim()) {
-      return Response.json({ error: "goals is required" }, { status: 400 });
+      return Response.json({ error: "goals is required" }, { status: 400, headers: JSON_HEADERS });
     }
 
     const mode = body.mode === "actions" ? "actions" : "full";
@@ -149,7 +166,7 @@ export async function handleGenerateRequest(request: Request): Promise<Response>
       const errText = await openaiRes.text();
       return Response.json(
         { error: `OpenAI error ${openaiRes.status}`, detail: errText.slice(0, 200) },
-        { status: 502 },
+        { status: 502, headers: JSON_HEADERS },
       );
     }
 
@@ -158,18 +175,19 @@ export async function handleGenerateRequest(request: Request): Promise<Response>
     };
     const content = data.choices?.[0]?.message?.content;
     if (!content) {
-      return Response.json({ error: "Empty OpenAI response" }, { status: 502 });
+      return Response.json(
+        { error: "Empty OpenAI response" },
+        { status: 502, headers: JSON_HEADERS },
+      );
     }
 
     const result = parseResult(content, mode, goals, feelings);
-    return Response.json(result, {
-      headers: { "Cache-Control": "no-store" },
-    });
+    return Response.json(result, { headers: JSON_HEADERS });
   } catch (error) {
     console.error("[rewire-generate]", error);
     return Response.json(
       { error: error instanceof Error ? error.message : "Generation failed" },
-      { status: 500 },
+      { status: 500, headers: JSON_HEADERS },
     );
   }
 }
