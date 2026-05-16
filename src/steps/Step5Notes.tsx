@@ -80,7 +80,7 @@ export function Step5Notes({ session, onRestart }: Props) {
               <Block label="Feelings behind it">
                 <div className="flex flex-wrap gap-2">
                   {session.selectedFeelings.map((f) => (
-                    <span key={f} className="pill font-inter-display px-4 py-2 text-[14px] font-light text-ink">
+                    <span key={f} className="pill font-display px-4 py-2 text-[14px] font-normal text-ink">
                       {f}
                     </span>
                   ))}

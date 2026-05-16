@@ -31,7 +31,7 @@ export function SelectedFeelingsStrip({ feelings, className = "" }: Props) {
         return (
           <span
             key={f}
-            className={`glass-chip inline-flex items-center gap-1.5 px-4 py-2.5 text-[14px] font-medium text-ink bg-gradient-to-br ${palette} shadow-glow ring-1 ring-white/65`}
+            className={`glass-chip font-display inline-flex items-center gap-1.5 px-4 py-2.5 text-[14px] font-normal text-ink bg-gradient-to-br ${palette} shadow-glow ring-1 ring-white/65`}
           >
             <span
               className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current"
