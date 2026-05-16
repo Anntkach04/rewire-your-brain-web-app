@@ -362,7 +362,8 @@ body {
   line-height: 1.45 !important;
 }
 
-#root .pill.font-display {
+#root .pill.font-display,
+#root .glass-chip.font-display {
   font-family: "Instrument Serif", ui-serif, Georgia, serif !important;
-  font-size: 14px !important;
+  font-size: 17px !important;
 }

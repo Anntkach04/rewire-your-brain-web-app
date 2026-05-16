@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { SelectedFeelingsStrip } from "../components/SelectedFeelingsStrip";
 import { copyNotesToClipboard } from "../lib/buildNotesExport";
 import { getSelectedActions } from "../lib/sessionActions";
 import type { SessionState } from "../types";
@@ -41,7 +40,6 @@ export function Step5Notes({ session, onRestart }: Props) {
         <p className="subtle font-inter-display mt-3 mx-auto max-w-[320px] text-balance">
           Save this to your notes and act on this today.
         </p>
-        <SelectedFeelingsStrip feelings={session.selectedFeelings} className="mt-5" />
       </div>
 
       <div className="mt-7">
@@ -80,7 +78,7 @@ export function Step5Notes({ session, onRestart }: Props) {
               <Block label="Feelings behind it">
                 <div className="flex flex-wrap gap-2">
                   {session.selectedFeelings.map((f) => (
-                    <span key={f} className="pill font-display px-4 py-2 text-[14px] font-normal text-ink">
+                    <span key={f} className="pill font-display px-4 py-2 text-[17px] font-normal text-ink">
                       {f}
                     </span>
                   ))}
@@ -107,7 +105,7 @@ export function Step5Notes({ session, onRestart }: Props) {
       </div>
 
       <div className="mt-7">
-        <button type="button" onClick={onRestart} className="btn-ghost w-full max-w-none font-display text-[20px] font-normal">
+        <button type="button" onClick={onRestart} className="btn-ghost w-full max-w-none font-display text-[18px] font-normal">
           Add another goal
         </button>
       </div>
