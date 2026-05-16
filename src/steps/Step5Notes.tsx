@@ -88,11 +88,11 @@ export function Step5Notes({ session, onRestart }: Props) {
                 />
               </Block>
 
-              <Block label="Why can you already feel this?">
+              <Block label="Why I deserve to feel this way">
                 <p className={`${NOTE_REASON} whitespace-pre-wrap`}>{session.deserveReasons}</p>
               </Block>
 
-              <Block label="Actions to feel this today">
+              <Block label="Actions to feel more this way">
                 <ul className="space-y-3">
                   {selectedActions.map((a, i) => (
                     <li key={i} className="flex items-start gap-3">

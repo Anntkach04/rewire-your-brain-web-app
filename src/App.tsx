@@ -25,7 +25,7 @@ const EMPTY_SESSION: SessionState = {
 export default function App() {
   const [step, setStep] = useState<StepId>(1);
   const [session, setSession] = useState<SessionState>(EMPTY_SESSION);
-  const [thinking, setThinking] = useState<false | "listening" | "rewiring">(false);
+  const [thinking, setThinking] = useState(false);
 
   const goTo = useCallback((s: StepId) => {
     setStep(s);
@@ -36,7 +36,7 @@ export default function App() {
 
   const handleActivate = useCallback(
     async (goals: string) => {
-      setThinking("listening");
+      setThinking(true);
       try {
         const res = await generateRewireResponse(goals, { mode: "full", goals });
         setSession({
@@ -108,7 +108,7 @@ export default function App() {
 
   const continueFromFeelings = useCallback(async () => {
     if (session.selectedFeelings.length === 0) return;
-    setThinking("rewiring");
+    setThinking(true);
     try {
       const res = await generateRewireResponse(session.goals, {
         mode: "actions",
@@ -152,7 +152,6 @@ export default function App() {
           {step === 2 && (
             <Step2Feelings
               key="s2"
-              realization={session.realization}
               suggested={session.suggestedFeelings}
               selected={session.selectedFeelings}
               onToggle={handleToggleFeeling}
@@ -221,9 +220,7 @@ export default function App() {
                 }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
               />
-              <span className="font-display text-[14px] font-normal italic text-ink">
-                {thinking === "listening" ? "listening…" : "rewiring…"}
-              </span>
+              <span className="font-display text-[14px] font-normal italic text-ink">rewiring…</span>
             </motion.div>
           </motion.div>
         )}
