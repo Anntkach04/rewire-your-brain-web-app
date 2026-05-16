@@ -7,7 +7,7 @@ type Props = {
   onActivate: (goals: string) => void;
 };
 
-const PLACEHOLDER = `I want to be in a loving, secure relationship
+const PLACEHOLDER = `e.g. I want to be in a loving, secure relationship
 I want to grow my audience to 1M followers
 I want to publish my first book`;
 
@@ -60,7 +60,7 @@ export function Step1Goals({ initialValue, onActivate }: Props) {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder={PLACEHOLDER}
-            className="placeholder-ink-soft font-inter-display h-full min-h-0 w-full min-w-0 flex-1 resize-none bg-transparent text-left text-ink caret-ink outline-none selection:bg-ink/10"
+            className="placeholder-ink-soft goals-field font-inter-display h-full min-h-0 w-full min-w-0 flex-1 resize-none bg-transparent text-left text-ink caret-ink outline-none selection:bg-ink/10"
             aria-label="Your goal or dream"
           />
         </motion.div>
