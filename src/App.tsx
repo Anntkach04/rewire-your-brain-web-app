@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { Atmosphere } from "./components/Atmosphere";
+import { GoogleAnalytics } from "./components/GoogleAnalytics";
 import { PhoneShell } from "./components/PhoneShell";
 import { Step1Goals } from "./steps/Step1Goals";
 import { Step2Feelings } from "./steps/Step2Feelings";
@@ -229,6 +230,7 @@ export default function App() {
       </AnimatePresence>
 
       <Analytics />
+      <GoogleAnalytics />
     </>
   );
 }
